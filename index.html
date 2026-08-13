@@ -3,148 +3,357 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#111111">
-  <title>DT 170 Calculator</title>
+  <meta name="theme-color" content="#0b0f14">
+  <title>DT 170 Lab</title>
   <link rel="manifest" href="manifest.json">
   <style>
-    :root { --bg:#0f0f10; --card:#19191c; --muted:#a9a9b2; --text:#f5f5f7; --line:#2b2b31; --accent:#f0f0f0; }
+    :root{
+      --bg:#081018;--panel:#0f1822;--panel2:#131f2b;--line:#213142;
+      --text:#f5f8fb;--muted:#94a5b6;--accent:#6ee7ff;--accent2:#9b8cff;
+      --good:#6ee7a8;--warn:#ffd166;--bad:#ff7b7b;
+    }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-    .wrap{max-width:900px;margin:auto;padding:14px}
-    h1{font-size:24px;margin:8px 0 4px}
-    .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(110,231,255,.12), transparent 28%),
+        radial-gradient(circle at 85% 10%, rgba(155,140,255,.12), transparent 25%),
+        var(--bg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    .shell{max-width:1180px;margin:auto;padding:16px}
+    .hero{
+      display:flex;justify-content:space-between;gap:16px;align-items:flex-end;
+      margin:8px 0 16px;padding:18px;border:1px solid var(--line);
+      border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));
+      box-shadow:0 20px 60px rgba(0,0,0,.25)
+    }
+    .hero h1{font-size:30px;margin:0 0 4px;letter-spacing:-.03em}
+    .hero p{margin:0;color:var(--muted);font-size:13px}
+    .badge{padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:var(--accent);font-size:12px;white-space:nowrap}
+    .tabs{display:flex;gap:8px;overflow:auto;padding-bottom:8px;margin-bottom:10px}
+    .tabs a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:8px 11px;border-radius:999px;font-size:12px;background:#0b141d}
+    .tabs a:hover{color:var(--text)}
+    .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:12px}
+    .card{background:rgba(15,24,34,.94);border:1px solid var(--line);border-radius:18px;padding:14px}
     .card h2{font-size:16px;margin:0 0 10px}
-    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
-    input{width:100%;background:#101012;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px;font-size:16px}
-    .results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-    .res{background:#111113;border:1px solid var(--line);border-radius:10px;padding:9px}
-    .res b{display:block;font-size:18px;margin-top:2px}
-    .res span{font-size:11px;color:var(--muted)}
-    .wide{grid-column:1/-1}
-    .note{font-size:12px;color:var(--muted);line-height:1.4}
-    button{width:100%;border:0;border-radius:10px;padding:11px;font-size:15px;font-weight:700;background:var(--accent);color:#111;margin-top:10px}
-    @media(max-width:680px){.grid,.results{grid-template-columns:1fr}.wide{grid-column:auto}}
+    .card h3{font-size:13px;color:var(--muted);margin:14px 0 6px}
+    .inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+    input,select{
+      width:100%;background:#09111a;color:var(--text);border:1px solid var(--line);
+      border-radius:10px;padding:9px 10px;font-size:15px;outline:none
+    }
+    input:focus,select:focus{border-color:#3e7186}
+    input[type=range]{padding:0;height:26px}
+    .rangeRow{display:grid;grid-template-columns:1fr 84px;gap:8px;align-items:center}
+    .results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .res{background:#09111a;border:1px solid var(--line);border-radius:12px;padding:9px}
+    .res span{display:block;color:var(--muted);font-size:10px}
+    .res b{display:block;font-size:18px;margin-top:3px}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid var(--line);padding:5px 8px;font-size:11px;color:var(--muted)}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+    .visuals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .viz{background:#09111a;border:1px solid var(--line);border-radius:14px;padding:10px;min-height:260px}
+    .viz svg{width:100%;height:240px;display:block}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .compareBox{background:#09111a;border:1px solid var(--line);border-radius:12px;padding:10px}
+    button{border:0;border-radius:11px;padding:10px 12px;font-weight:700;background:linear-gradient(135deg,var(--accent),#b6f6ff);color:#071018;font-size:14px}
+    button.alt{background:#101b26;color:var(--text);border:1px solid var(--line)}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .note{font-size:11px;color:var(--muted);line-height:1.45}
+    .mapControls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+    .portPreview{background:white;color:black;border-radius:14px;padding:12px;overflow:auto}
+    #portSheet{display:block;margin:auto;background:white}
+    .full{grid-column:1/-1}
+    .hidePrint{display:block}
+    @media(max-width:820px){
+      .grid{grid-template-columns:1fr}
+      .visuals{grid-template-columns:1fr}
+      .results{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .mapControls{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .hero{align-items:flex-start;flex-direction:column}
+    }
+    @media(max-width:520px){
+      .inputs,.compare{grid-template-columns:1fr}
+      .results{grid-template-columns:1fr 1fr}
+      .hero h1{font-size:26px}
+    }
+
+    @page{size:A4 portrait;margin:8mm}
+    @media print{
+      body{background:white!important;color:black!important}
+      body *{visibility:hidden!important}
+      #printArea,#printArea *{visibility:visible!important}
+      #printArea{position:absolute;left:0;top:0;width:100%;padding:0;margin:0;background:white!important}
+      #printArea .portPreview{border:0;padding:0}
+      #portSheet{width:194mm!important;height:auto!important;max-height:277mm!important}
+      .hidePrint{display:none!important}
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>DT 170 Calculator</h1>
-  <div class="sub">Kevyt selainlaskuri – toimii ilman Railwayta ja voidaan julkaista GitHub Pagesissa.</div>
+<div class="shell">
+  <section class="hero">
+    <div>
+      <h1>DT 170 Lab</h1>
+      <p>Porttiajoitus • geometria • vertailu • tulostettava 1:1 porting map</p>
+    </div>
+    <div class="badge">Static • GitHub Pages • Offline-ready</div>
+  </section>
+
+  <nav class="tabs">
+    <a href="#setup">Setup</a><a href="#visual">Visual</a><a href="#compare">Vertailu</a><a href="#portmap">Porting Map</a>
+  </nav>
 
   <div class="grid">
-    <section class="card">
-      <h2>Moottorin mitat</h2>
-      <label>Poraus, mm</label><input id="bore" type="number" step="0.01" value="65">
-      <label>Isku, mm</label><input id="stroke" type="number" step="0.01" value="50.7">
-      <label>Kiertokangen pituus, mm</label><input id="rod" type="number" step="0.1" value="110">
-      <label>Sylinterin korotus, mm</label><input id="raise" type="number" step="0.01" value="2.3">
-      <label>Männän ylitys YKK:ssa, mm</label><input id="protrusion" type="number" step="0.01" value="0.15">
+    <section class="card" id="setup">
+      <h2>Moottorin asetukset</h2>
+      <div class="inputs">
+        <div><label>Poraus (mm)</label><input id="bore" type="number" step="0.01" value="65"></div>
+        <div><label>Isku (mm)</label><input id="stroke" type="number" step="0.01" value="50.7"></div>
+        <div><label>Kiertokanki c-c (mm)</label><input id="rod" type="number" step="0.1" value="110"></div>
+        <div><label>Palotila (ml)</label><input id="chamber" type="number" step="0.1" value="14"></div>
+        <div><label>Squish (mm)</label><input id="squish" type="number" step="0.01" value="0.9"></div>
+        <div><label>Squish-alue (mm)</label><input id="squishWidth" type="number" step="0.1" value="8"></div>
+      </div>
+
+      <h3>Sylinterin korotus</h3>
+      <div class="rangeRow">
+        <input id="raiseR" type="range" min="-1" max="5" step="0.05" value="2.3">
+        <input id="raise" type="number" step="0.05" value="2.3">
+      </div>
+
+      <h3>Pakoaukon korkeus</h3>
+      <div class="rangeRow">
+        <input id="exhaustR" type="range" min="18" max="35" step="0.05" value="25">
+        <input id="exhaust" type="number" step="0.05" value="25">
+      </div>
+
+      <h3>Huuhtelun korkeus</h3>
+      <div class="rangeRow">
+        <input id="transferR" type="range" min="30" max="50" step="0.05" value="42">
+        <input id="transfer" type="number" step="0.05" value="42">
+      </div>
+
+      <div class="inputs" style="margin-top:9px">
+        <div><label>Männän ylitys YKK:ssa (mm)</label><input id="protrusion" type="number" step="0.01" value="0.15"></div>
+        <div><label>Pakoaukon leveys (mm)</label><input id="exWidth" type="number" step="0.1" value="42"></div>
+      </div>
+
+      <div class="actions">
+        <button id="saveBase" class="alt">Tallenna vertailupohja</button>
+        <button id="reset" class="alt">Palauta oletukset</button>
+      </div>
     </section>
 
     <section class="card">
-      <h2>Kanavat</h2>
-      <label>Pakoaukon yläreuna sylinterin tasosta, mm</label><input id="exhaust" type="number" step="0.01" value="25">
-      <label>Huuhtelun yläreuna sylinterin tasosta, mm</label><input id="transfer" type="number" step="0.01" placeholder="esim. 42.0">
-      <div class="note">Ajoitus lasketaan kampi–kiertokanki-geometrialla. Tarkkuus riippuu oikeasta kiertokangen pituudesta ja kanavakorkeuksista.</div>
-    </section>
-
-    <section class="card">
-      <h2>Kansi & puristus</h2>
-      <label>Palotilan tilavuus, ml</label><input id="chamber" type="number" step="0.1" value="14">
-      <label>Squish, mm</label><input id="squish" type="number" step="0.01" value="0.9">
-      <label>Squish-alueen leveys, mm</label><input id="squishWidth" type="number" step="0.1" value="8">
-    </section>
-
-    <section class="card">
-      <h2>Tulokset</h2>
+      <h2>Live-tulokset</h2>
       <div class="results">
-        <div class="res"><span>Iskutilavuus</span><b id="cc">–</b></div>
-        <div class="res"><span>Geometrinen puristussuhde*</span><b id="cr">–</b></div>
+        <div class="res"><span>Tilavuus</span><b id="cc">–</b></div>
+        <div class="res"><span>Geometrinen CR</span><b id="cr">–</b></div>
         <div class="res"><span>Pakoajoitus</span><b id="exDeg">–</b></div>
         <div class="res"><span>Huuhteluajoitus</span><b id="trDeg">–</b></div>
         <div class="res"><span>Blowdown / puoli</span><b id="bd">–</b></div>
-        <div class="res"><span>Pako sulkeutuu YKK:sta</span><b id="exClose">–</b></div>
+        <div class="res"><span>Pako aukeaa</span><b id="exOpen">–</b></div>
       </div>
-      <div class="note" style="margin-top:8px">* Puristussuhde on yksinkertaistettu laskenta annetulla palotilan tilavuudella. Todellinen tulos riippuu siitä, miten ilmoitettu palotila on mitattu ja mitä tilavuuksia squish/tiiviste lisää.</div>
+      <div style="margin-top:10px" class="pill"><span class="dot" id="bdDot"></span><span id="bdHint">Blowdown-arvio</span></div>
+      <p class="note" style="margin-top:10px">Ajoitus perustuu kampi–kiertokanki-geometriaan. Lopullinen porting kannattaa aina varmistaa mekaanisesti astelevyllä ja mittaamalla oikea sylinteri.</p>
     </section>
 
-    <section class="card wide">
-      <h2>Mitä sylinterin korotus tekee?</h2>
-      <div class="results">
-        <div class="res"><span>Pakoaukon efektiivinen korkeus YKK:sta</span><b id="exHeight">–</b></div>
-        <div class="res"><span>Huuhtelun efektiivinen korkeus YKK:sta</span><b id="trHeight">–</b></div>
+    <section class="card full" id="visual">
+      <h2>Visuaalinen ajoitus</h2>
+      <div class="visuals">
+        <div class="viz">
+          <svg id="timingSvg" viewBox="0 0 320 240" aria-label="Kampikulmakaavio"></svg>
+        </div>
+        <div class="viz">
+          <svg id="cylSvg" viewBox="0 0 320 240" aria-label="Sylinterikaavio"></svg>
+        </div>
       </div>
-      <button id="reset">Palauta DT170-esimerkkiasetukset</button>
+    </section>
+
+    <section class="card full" id="compare">
+      <h2>Ennen / jälkeen</h2>
+      <div class="compare">
+        <div class="compareBox"><b>Pohja</b><div id="baseText" class="note" style="margin-top:6px">Tallenna nykyinen setup vertailupohjaksi.</div></div>
+        <div class="compareBox"><b>Nyt</b><div id="nowText" class="note" style="margin-top:6px">–</div></div>
+      </div>
+    </section>
+
+    <section class="card full" id="portmap">
+      <h2>Tulostettava Porting Map 1:1</h2>
+      <div class="mapControls hidePrint">
+        <div><label>Pakoaukon leveys (mm)</label><input id="pmExW" type="number" step="0.1" value="42"></div>
+        <div><label>Pakoaukon korkeus (mm)</label><input id="pmExH" type="number" step="0.1" value="18"></div>
+        <div><label>Huuhtelun leveys / aukko (mm)</label><input id="pmTrW" type="number" step="0.1" value="18"></div>
+        <div><label>Huuhtelun korkeus (mm)</label><input id="pmTrH" type="number" step="0.1" value="12"></div>
+        <div><label>Huuhtelujen määrä</label><select id="pmTrCount"><option>2</option><option selected>4</option><option>6</option></select></div>
+        <div><label>Porting map korkeus (mm)</label><input id="pmMapH" type="number" step="1" value="60"></div>
+        <div><label>Keskitysasteet</label><input id="pmCenterDeg" type="number" step="1" value="180"></div>
+        <div><label>Kalibrointiruutu</label><input value="50 × 50 mm" disabled></div>
+      </div>
+      <div class="actions hidePrint">
+        <button id="printBtn">Tulosta 1:1</button>
+        <button id="pdfBtn" class="alt">Tallenna PDF:ksi tulostusvalikosta</button>
+      </div>
+
+      <div id="printArea" style="margin-top:12px">
+        <div class="portPreview">
+          <svg id="portSheet" xmlns="http://www.w3.org/2000/svg" width="194mm" height="250mm" viewBox="0 0 194 250"></svg>
+        </div>
+      </div>
+      <p class="note hidePrint">Tulosta asetuksella 100 % / Actual size. Mittaa 50 × 50 mm kalibrointiruutu ennen kuin käytät karttaa mallina sylinteriin.</p>
     </section>
   </div>
 </div>
 
 <script>
-const ids = ["bore","stroke","rod","raise","protrusion","exhaust","transfer","chamber","squish","squishWidth"];
-const $ = id => document.getElementById(id);
-const val = id => parseFloat($(id).value);
+const $=id=>document.getElementById(id);
+const val=id=>parseFloat($(id).value);
+const allInputs=["bore","stroke","rod","chamber","squish","squishWidth","raise","exhaust","transfer","protrusion","exWidth",
+"pmExW","pmExH","pmTrW","pmTrH","pmTrCount","pmMapH","pmCenterDeg"];
+
+function syncPair(a,b){
+  $(a).addEventListener("input",()=>{$(b).value=$(a).value;calc()});
+  $(b).addEventListener("input",()=>{$(a).value=$(b).value;calc()});
+}
+syncPair("raiseR","raise"); syncPair("exhaustR","exhaust"); syncPair("transferR","transfer");
 
 function pistonPos(thetaDeg, stroke, rod){
-  const r = stroke/2;
-  const th = thetaDeg*Math.PI/180;
-  const under = rod*rod - Math.pow(r*Math.sin(th),2);
-  if (under < 0) return NaN;
-  return r*(1-Math.cos(th)) + rod - Math.sqrt(under);
+  const r=stroke/2, th=thetaDeg*Math.PI/180;
+  const under=rod*rod-Math.pow(r*Math.sin(th),2);
+  if(under<0)return NaN;
+  return r*(1-Math.cos(th))+rod-Math.sqrt(under);
 }
-function angleForPos(x, stroke, rod){
-  if (!isFinite(x) || x <= 0 || x >= stroke) return null;
-  let lo=0, hi=180;
-  for(let i=0;i<70;i++){
-    const mid=(lo+hi)/2;
-    if(pistonPos(mid,stroke,rod) < x) lo=mid; else hi=mid;
-  }
+function angleForPos(x,stroke,rod){
+  if(!isFinite(x)||x<=0||x>=stroke)return null;
+  let lo=0,hi=180;
+  for(let i=0;i<70;i++){const mid=(lo+hi)/2;(pistonPos(mid,stroke,rod)<x?lo=mid:hi=mid)}
   return (lo+hi)/2;
 }
-function fmt(n,d=1,s=""){ return isFinite(n) ? n.toFixed(d)+s : "–"; }
-
-function calc(){
-  const bore=val("bore"), stroke=val("stroke"), rod=val("rod");
-  const raise=val("raise")||0, protrusion=val("protrusion")||0;
-  const exhaust=val("exhaust"), transfer=val("transfer"), chamber=val("chamber");
-
-  const cc=Math.PI/4*bore*bore*stroke/1000;
-  $("cc").textContent=fmt(cc,1," cc");
-
-  const cr = chamber>0 ? (cc+chamber)/chamber : NaN;
-  $("cr").textContent=isFinite(cr)?cr.toFixed(2)+":1":"–";
-
-  // Distance from piston crown at TDC to port top.
-  // Raising cylinder moves ports farther from crank/TDC reference; piston protrusion reduces distance from crown to deck.
-  const exX = exhaust + raise - protrusion;
-  const trX = isFinite(transfer) ? transfer + raise - protrusion : NaN;
-  $("exHeight").textContent=fmt(exX,2," mm");
-  $("trHeight").textContent=fmt(trX,2," mm");
-
-  const exOpen=angleForPos(exX,stroke,rod);
-  const trOpen=angleForPos(trX,stroke,rod);
-
-  const exDur = exOpen==null ? NaN : 360-2*exOpen;
-  const trDur = trOpen==null ? NaN : 360-2*trOpen;
-  $("exDeg").textContent=fmt(exDur,1,"°");
-  $("trDeg").textContent=fmt(trDur,1,"°");
-  $("exClose").textContent=exOpen==null?"–":fmt(360-exOpen,1,"°");
-
-  const bd = (isFinite(exOpen)&&isFinite(trOpen)) ? trOpen-exOpen : NaN;
-  $("bd").textContent=fmt(bd,1,"°");
+function fmt(n,d=1,s=""){return isFinite(n)?n.toFixed(d)+s:"–"}
+function metrics(){
+  const bore=val("bore"),stroke=val("stroke"),rod=val("rod"),raise=val("raise")||0,prot=val("protrusion")||0;
+  const exX=val("exhaust")+raise-prot, trX=val("transfer")+raise-prot;
+  const exOpen=angleForPos(exX,stroke,rod), trOpen=angleForPos(trX,stroke,rod);
+  const exDur=exOpen==null?NaN:360-2*exOpen, trDur=trOpen==null?NaN:360-2*trOpen;
+  return {
+    cc:Math.PI/4*bore*bore*stroke/1000,
+    cr:val("chamber")>0?(Math.PI/4*bore*bore*stroke/1000+val("chamber"))/val("chamber"):NaN,
+    exX,trX,exOpen,trOpen,exDur,trDur,bd:(isFinite(exOpen)&&isFinite(trOpen))?trOpen-exOpen:NaN
+  };
 }
-ids.forEach(id => $(id).addEventListener("input", calc));
-$("reset").addEventListener("click", ()=>{
-  const defaults={bore:65,stroke:50.7,rod:110,raise:2.3,protrusion:0.15,exhaust:25,transfer:"",chamber:14,squish:0.9,squishWidth:8};
-  Object.entries(defaults).forEach(([k,v])=>$(k).value=v);
-  calc();
+let base=null;
+
+function polar(cx,cy,r,deg){const a=(deg-90)*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)]}
+function arcPath(cx,cy,r,start,end){
+  const s=polar(cx,cy,r,end),e=polar(cx,cy,r,start),large=(end-start)<=180?0:1;
+  return `M ${s[0]} ${s[1]} A ${r} ${r} 0 ${large} 0 ${e[0]} ${e[1]}`;
+}
+function drawTiming(m){
+  const svg=$("timingSvg");
+  const exStart=m.exOpen, exEnd=360-m.exOpen, trStart=m.trOpen, trEnd=360-m.trOpen;
+  svg.innerHTML=`
+    <circle cx="120" cy="120" r="84" fill="none" stroke="#213142" stroke-width="18"/>
+    ${isFinite(exStart)?`<path d="${arcPath(120,120,84,exStart,exEnd)}" fill="none" stroke="#ff7b7b" stroke-width="18" stroke-linecap="round"/>`:""}
+    ${isFinite(trStart)?`<path d="${arcPath(120,120,58,trStart,trEnd)}" fill="none" stroke="#6ee7ff" stroke-width="14" stroke-linecap="round"/>`:""}
+    <line x1="120" y1="20" x2="120" y2="34" stroke="#f5f8fb" stroke-width="2"/>
+    <text x="120" y="14" text-anchor="middle" fill="#94a5b6" font-size="10">YKK 0°</text>
+    <text x="120" y="226" text-anchor="middle" fill="#94a5b6" font-size="10">AKK 180°</text>
+    <text x="224" y="82" fill="#ff7b7b" font-size="11">Pako ${fmt(m.exDur,1,"°")}</text>
+    <text x="224" y="102" fill="#6ee7ff" font-size="11">Huuhtelu ${fmt(m.trDur,1,"°")}</text>
+    <text x="224" y="122" fill="#ffd166" font-size="11">BD ${fmt(m.bd,1,"°")}</text>
+  `;
+}
+function drawCylinder(m){
+  const svg=$("cylSvg"), scale=3.3, top=28, left=95, width=130;
+  const exY=top+m.exX*scale, trY=top+m.trX*scale;
+  svg.innerHTML=`
+    <rect x="${left}" y="${top}" width="${width}" height="178" rx="10" fill="#0d1620" stroke="#31475b" stroke-width="2"/>
+    <line x1="${left-12}" y1="${top}" x2="${left+width+12}" y2="${top}" stroke="#f5f8fb" stroke-width="2"/>
+    <text x="20" y="${top+4}" fill="#94a5b6" font-size="10">Sylinterin taso</text>
+    <rect x="${left+26}" y="${Math.min(exY,198)}" width="${width-52}" height="13" rx="4" fill="#ff7b7b" opacity=".9"/>
+    <rect x="${left+8}" y="${Math.min(trY,207)}" width="35" height="11" rx="4" fill="#6ee7ff" opacity=".9"/>
+    <rect x="${left+width-43}" y="${Math.min(trY,207)}" width="35" height="11" rx="4" fill="#6ee7ff" opacity=".9"/>
+    <text x="236" y="${Math.min(exY+10,210)}" fill="#ff7b7b" font-size="10">Pako</text>
+    <text x="236" y="${Math.min(trY+9,222)}" fill="#6ee7ff" font-size="10">Huuhtelu</text>
+  `;
+}
+function drawPortMap(m){
+  const svg=$("portSheet");
+  const bore=val("bore"), circumference=Math.PI*bore, mapH=val("pmMapH");
+  const scaleX=170/circumference;
+  const originX=12, originY=40, drawW=170, drawH=mapH; // SVG mm units
+  const exW=val("pmExW"),exH=val("pmExH"),trW=val("pmTrW"),trH=val("pmTrH"),trCount=parseInt($("pmTrCount").value);
+  const exCenter=originX+drawW/2, exX=exCenter-(exW*scaleX)/2;
+  const exY=originY + Math.max(0, m.exX-10);
+  let transferRects="";
+  if(trCount>0){
+    for(let i=0;i<trCount;i++){
+      const frac=(i+1)/(trCount+1);
+      const cx=originX+drawW*frac;
+      transferRects+=`<rect x="${cx-(trW*scaleX)/2}" y="${originY+Math.max(0,m.trX-10)}" width="${trW*scaleX}" height="${trH}" fill="none" stroke="#111" stroke-width=".4"/>`;
+    }
+  }
+  svg.setAttribute("viewBox","0 0 194 250");
+  svg.innerHTML=`
+    <rect x="0" y="0" width="194" height="250" fill="#fff"/>
+    <text x="12" y="12" font-size="5" font-weight="700">DT 170 PORTING MAP</text>
+    <text x="12" y="19" font-size="3.2">Bore ${bore.toFixed(2)} mm • Circumference ${circumference.toFixed(2)} mm • Exhaust ${fmt(m.exDur,1,"°")} • Transfer ${fmt(m.trDur,1,"°")} • BD ${fmt(m.bd,1,"°")}</text>
+    <rect x="${originX}" y="${originY}" width="${drawW}" height="${drawH}" fill="none" stroke="#111" stroke-width=".5"/>
+    <line x1="${originX+drawW/2}" y1="${originY-4}" x2="${originX+drawW/2}" y2="${originY+drawH+4}" stroke="#555" stroke-dasharray="2,2" stroke-width=".3"/>
+    <text x="${originX+drawW/2+2}" y="${originY-2}" font-size="3">Keskiviiva</text>
+    <rect x="${exX}" y="${exY}" width="${exW*scaleX}" height="${exH}" fill="none" stroke="#111" stroke-width=".6"/>
+    <text x="${exX}" y="${exY-2}" font-size="3">PAKO ${exW.toFixed(1)}×${exH.toFixed(1)} mm</text>
+    ${transferRects}
+    <line x1="${originX}" y1="${originY+drawH+8}" x2="${originX+drawW}" y2="${originY+drawH+8}" stroke="#111" stroke-width=".35"/>
+    <text x="${originX}" y="${originY+drawH+13}" font-size="3">Kartta on levitetty sylinterin ympärysmitalle. Mittaa 50×50 mm kalibrointi ennen käyttöä.</text>
+    <rect x="12" y="185" width="50" height="50" fill="none" stroke="#111" stroke-width=".7"/>
+    <text x="12" y="181" font-size="3.5">KALIBROINTI 50 × 50 mm</text>
+    <line x1="68" y1="185" x2="68" y2="235" stroke="#111" stroke-width=".25"/>
+    <text x="72" y="193" font-size="3.2">Poraus: ${bore.toFixed(2)} mm</text>
+    <text x="72" y="200" font-size="3.2">Pako yläreuna: ${m.exX.toFixed(2)} mm YKK</text>
+    <text x="72" y="207" font-size="3.2">Huuhtelu yläreuna: ${m.trX.toFixed(2)} mm YKK</text>
+    <text x="72" y="214" font-size="3.2">Pakoajoitus: ${fmt(m.exDur,1,"°")}</text>
+    <text x="72" y="221" font-size="3.2">Huuhteluajoitus: ${fmt(m.trDur,1,"°")}</text>
+    <text x="72" y="228" font-size="3.2">Blowdown / puoli: ${fmt(m.bd,1,"°")}</text>
+  `;
+}
+function calc(){
+  const m=metrics();
+  $("cc").textContent=fmt(m.cc,1," cc");
+  $("cr").textContent=isFinite(m.cr)?m.cr.toFixed(2)+":1":"–";
+  $("exDeg").textContent=fmt(m.exDur,1,"°");
+  $("trDeg").textContent=fmt(m.trDur,1,"°");
+  $("bd").textContent=fmt(m.bd,1,"°");
+  $("exOpen").textContent=fmt(m.exOpen,1,"° ATDC");
+  const dot=$("bdDot"),hint=$("bdHint");
+  if(!isFinite(m.bd)){dot.style.background="#777";hint.textContent="Blowdown ei laskettavissa"}
+  else if(m.bd<27){dot.style.background="var(--good)";hint.textContent="Maltillinen blowdown"}
+  else if(m.bd<33){dot.style.background="var(--warn)";hint.textContent="Sport / korkea blowdown"}
+  else{dot.style.background="var(--bad)";hint.textContent="Erittäin korkea blowdown – tarkista mitat"}
+  $("nowText").innerHTML=`Pako ${fmt(m.exDur,1,"°")} • Huuhtelu ${fmt(m.trDur,1,"°")} • BD ${fmt(m.bd,1,"°")} • CR ${isFinite(m.cr)?m.cr.toFixed(2)+":1":"–"} • Korotus ${fmt(val("raise"),2," mm")}`;
+  if(base){
+    $("baseText").innerHTML=`Pako ${fmt(base.exDur,1,"°")} • Huuhtelu ${fmt(base.trDur,1,"°")} • BD ${fmt(base.bd,1,"°")} • CR ${isFinite(base.cr)?base.cr.toFixed(2)+":1":"–"} • Korotus ${fmt(base.raise,2," mm")}`;
+  }
+  drawTiming(m); drawCylinder(m); drawPortMap(m);
+}
+allInputs.forEach(id=>$(id).addEventListener("input",calc));
+$("saveBase").addEventListener("click",()=>{base={...metrics(),raise:val("raise")};calc()});
+$("printBtn").addEventListener("click",()=>window.print());
+$("pdfBtn").addEventListener("click",()=>window.print());
+$("reset").addEventListener("click",()=>{
+  const d={bore:65,stroke:50.7,rod:110,chamber:14,squish:.9,squishWidth:8,raise:2.3,exhaust:25,transfer:42,protrusion:.15,exWidth:42,
+  pmExW:42,pmExH:18,pmTrW:18,pmTrH:12,pmTrCount:4,pmMapH:60,pmCenterDeg:180};
+  Object.entries(d).forEach(([k,v])=>$(k).value=v);
+  $("raiseR").value=d.raise;$("exhaustR").value=d.exhaust;$("transferR").value=d.transfer;
+  base=null;calc();
 });
 calc();
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", ()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-}
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 </script>
 </body>
 </html>

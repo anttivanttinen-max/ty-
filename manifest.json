@@ -1,9 +1,9 @@
 {
-  "name": "DT 170 Calculator",
-  "short_name": "DT170",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#0f0f10",
-  "theme_color": "#111111",
-  "icons": []
+  "name":"DT 170 Lab",
+  "short_name":"DT170 Lab",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#081018",
+  "theme_color":"#0b0f14",
+  "icons":[]
 }
