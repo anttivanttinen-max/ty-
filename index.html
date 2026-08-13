@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <title>DT 170 Calculator</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root { --bg:#0f0f10; --card:#19191c; --muted:#a9a9b2; --text:#f5f5f7; --line:#2b2b31; --accent:#f0f0f0; }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+    .wrap{max-width:900px;margin:auto;padding:14px}
+    h1{font-size:24px;margin:8px 0 4px}
+    .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+    .card h2{font-size:16px;margin:0 0 10px}
+    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
+    input{width:100%;background:#101012;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px;font-size:16px}
+    .results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .res{background:#111113;border:1px solid var(--line);border-radius:10px;padding:9px}
+    .res b{display:block;font-size:18px;margin-top:2px}
+    .res span{font-size:11px;color:var(--muted)}
+    .wide{grid-column:1/-1}
+    .note{font-size:12px;color:var(--muted);line-height:1.4}
+    button{width:100%;border:0;border-radius:10px;padding:11px;font-size:15px;font-weight:700;background:var(--accent);color:#111;margin-top:10px}
+    @media(max-width:680px){.grid,.results{grid-template-columns:1fr}.wide{grid-column:auto}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DT 170 Calculator</h1>
+  <div class="sub">Kevyt selainlaskuri – toimii ilman Railwayta ja voidaan julkaista GitHub Pagesissa.</div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Moottorin mitat</h2>
+      <label>Poraus, mm</label><input id="bore" type="number" step="0.01" value="65">
+      <label>Isku, mm</label><input id="stroke" type="number" step="0.01" value="50.7">
+      <label>Kiertokangen pituus, mm</label><input id="rod" type="number" step="0.1" value="110">
+      <label>Sylinterin korotus, mm</label><input id="raise" type="number" step="0.01" value="2.3">
+      <label>Männän ylitys YKK:ssa, mm</label><input id="protrusion" type="number" step="0.01" value="0.15">
+    </section>
+
+    <section class="card">
+      <h2>Kanavat</h2>
+      <label>Pakoaukon yläreuna sylinterin tasosta, mm</label><input id="exhaust" type="number" step="0.01" value="25">
+      <label>Huuhtelun yläreuna sylinterin tasosta, mm</label><input id="transfer" type="number" step="0.01" placeholder="esim. 42.0">
+      <div class="note">Ajoitus lasketaan kampi–kiertokanki-geometrialla. Tarkkuus riippuu oikeasta kiertokangen pituudesta ja kanavakorkeuksista.</div>
+    </section>
+
+    <section class="card">
+      <h2>Kansi & puristus</h2>
+      <label>Palotilan tilavuus, ml</label><input id="chamber" type="number" step="0.1" value="14">
+      <label>Squish, mm</label><input id="squish" type="number" step="0.01" value="0.9">
+      <label>Squish-alueen leveys, mm</label><input id="squishWidth" type="number" step="0.1" value="8">
+    </section>
+
+    <section class="card">
+      <h2>Tulokset</h2>
+      <div class="results">
+        <div class="res"><span>Iskutilavuus</span><b id="cc">–</b></div>
+        <div class="res"><span>Geometrinen puristussuhde*</span><b id="cr">–</b></div>
+        <div class="res"><span>Pakoajoitus</span><b id="exDeg">–</b></div>
+        <div class="res"><span>Huuhteluajoitus</span><b id="trDeg">–</b></div>
+        <div class="res"><span>Blowdown / puoli</span><b id="bd">–</b></div>
+        <div class="res"><span>Pako sulkeutuu YKK:sta</span><b id="exClose">–</b></div>
+      </div>
+      <div class="note" style="margin-top:8px">* Puristussuhde on yksinkertaistettu laskenta annetulla palotilan tilavuudella. Todellinen tulos riippuu siitä, miten ilmoitettu palotila on mitattu ja mitä tilavuuksia squish/tiiviste lisää.</div>
+    </section>
+
+    <section class="card wide">
+      <h2>Mitä sylinterin korotus tekee?</h2>
+      <div class="results">
+        <div class="res"><span>Pakoaukon efektiivinen korkeus YKK:sta</span><b id="exHeight">–</b></div>
+        <div class="res"><span>Huuhtelun efektiivinen korkeus YKK:sta</span><b id="trHeight">–</b></div>
+      </div>
+      <button id="reset">Palauta DT170-esimerkkiasetukset</button>
+    </section>
+  </div>
+</div>
+
+<script>
+const ids = ["bore","stroke","rod","raise","protrusion","exhaust","transfer","chamber","squish","squishWidth"];
+const $ = id => document.getElementById(id);
+const val = id => parseFloat($(id).value);
+
+function pistonPos(thetaDeg, stroke, rod){
+  const r = stroke/2;
+  const th = thetaDeg*Math.PI/180;
+  const under = rod*rod - Math.pow(r*Math.sin(th),2);
+  if (under < 0) return NaN;
+  return r*(1-Math.cos(th)) + rod - Math.sqrt(under);
+}
+function angleForPos(x, stroke, rod){
+  if (!isFinite(x) || x <= 0 || x >= stroke) return null;
+  let lo=0, hi=180;
+  for(let i=0;i<70;i++){
+    const mid=(lo+hi)/2;
+    if(pistonPos(mid,stroke,rod) < x) lo=mid; else hi=mid;
+  }
+  return (lo+hi)/2;
+}
+function fmt(n,d=1,s=""){ return isFinite(n) ? n.toFixed(d)+s : "–"; }
+
+function calc(){
+  const bore=val("bore"), stroke=val("stroke"), rod=val("rod");
+  const raise=val("raise")||0, protrusion=val("protrusion")||0;
+  const exhaust=val("exhaust"), transfer=val("transfer"), chamber=val("chamber");
+
+  const cc=Math.PI/4*bore*bore*stroke/1000;
+  $("cc").textContent=fmt(cc,1," cc");
+
+  const cr = chamber>0 ? (cc+chamber)/chamber : NaN;
+  $("cr").textContent=isFinite(cr)?cr.toFixed(2)+":1":"–";
+
+  // Distance from piston crown at TDC to port top.
+  // Raising cylinder moves ports farther from crank/TDC reference; piston protrusion reduces distance from crown to deck.
+  const exX = exhaust + raise - protrusion;
+  const trX = isFinite(transfer) ? transfer + raise - protrusion : NaN;
+  $("exHeight").textContent=fmt(exX,2," mm");
+  $("trHeight").textContent=fmt(trX,2," mm");
+
+  const exOpen=angleForPos(exX,stroke,rod);
+  const trOpen=angleForPos(trX,stroke,rod);
+
+  const exDur = exOpen==null ? NaN : 360-2*exOpen;
+  const trDur = trOpen==null ? NaN : 360-2*trOpen;
+  $("exDeg").textContent=fmt(exDur,1,"°");
+  $("trDeg").textContent=fmt(trDur,1,"°");
+  $("exClose").textContent=exOpen==null?"–":fmt(360-exOpen,1,"°");
+
+  const bd = (isFinite(exOpen)&&isFinite(trOpen)) ? trOpen-exOpen : NaN;
+  $("bd").textContent=fmt(bd,1,"°");
+}
+ids.forEach(id => $(id).addEventListener("input", calc));
+$("reset").addEventListener("click", ()=>{
+  const defaults={bore:65,stroke:50.7,rod:110,raise:2.3,protrusion:0.15,exhaust:25,transfer:"",chamber:14,squish:0.9,squishWidth:8};
+  Object.entries(defaults).forEach(([k,v])=>$(k).value=v);
+  calc();
+});
+calc();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", ()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
