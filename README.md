@@ -26,3 +26,9 @@ Mittaa 50 x 50 mm kalibrointiruutu ennen porting mapin käyttämistä sylinteris
 ## v2.1 korjaus
 - Korjattu sylinterin korotuksen suunta: korotus aikaistaa porttien avautumista ja kasvattaa ajoitusta.
 - Päivitetty service worker -välimuistin versio.
+
+## v2.2
+- Sylinterin korotuksen laskentasuunnan korjaus.
+- Positiivinen korotus kasvattaa pako- ja huuhteluajoitusta.
+- Service Worker poistettu käytöstä kehityksen ajaksi.
+- Sivu poistaa vanhat Service Worker -rekisteröinnit ja välimuistit automaattisesti.

@@ -98,7 +98,7 @@
 <div class="shell">
   <section class="hero">
     <div>
-      <h1>DT 170 Lab <span style="font-size:14px;color:var(--accent)">v2.1</span></h1>
+      <h1>DT 170 Lab <span style="font-size:14px;color:var(--accent)">v2.2</span></h1>
       <p>Porttiajoitus • geometria • vertailu • tulostettava 1:1 porting map</p>
     </div>
     <div class="badge">Static • GitHub Pages • Offline-ready</div>
@@ -237,7 +237,7 @@ function angleForPos(x,stroke,rod){
 function fmt(n,d=1,s=""){return isFinite(n)?n.toFixed(d)+s:"–"}
 function metrics(){
   const bore=val("bore"),stroke=val("stroke"),rod=val("rod"),raise=val("raise")||0,prot=val("protrusion")||0;
-  const exX=val("exhaust")-raise+prot, trX=val("transfer")-raise+prot;
+  const exX=val("exhaust")-raise-prot, trX=val("transfer")-raise-prot;
   const exOpen=angleForPos(exX,stroke,rod), trOpen=angleForPos(trX,stroke,rod);
   const exDur=exOpen==null?NaN:360-2*exOpen, trDur=trOpen==null?NaN:360-2*trOpen;
   return {
