@@ -1,0 +1,9 @@
+{
+  "name": "DT 170 Calculator",
+  "short_name": "DT170",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f0f10",
+  "theme_color": "#111111",
+  "icons": []
+}
