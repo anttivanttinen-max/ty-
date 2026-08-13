@@ -21,3 +21,8 @@ GitHub Pages julkaisee uuden version automaattisesti.
 Avaa Porting Map ja valitse Tulosta 1:1.
 Tulostusasetuksissa käytä 100 % / Actual size.
 Mittaa 50 x 50 mm kalibrointiruutu ennen porting mapin käyttämistä sylinterissä.
+
+
+## v2.1 korjaus
+- Korjattu sylinterin korotuksen suunta: korotus aikaistaa porttien avautumista ja kasvattaa ajoitusta.
+- Päivitetty service worker -välimuistin versio.
