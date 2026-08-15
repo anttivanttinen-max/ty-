@@ -1,9 +1,0 @@
-{
-  "name":"DT 170 Lab v2.2",
-  "short_name":"DT170 v2.2",
-  "start_url":"./",
-  "display":"standalone",
-  "background_color":"#081018",
-  "theme_color":"#0b0f14",
-  "icons":[]
-}
