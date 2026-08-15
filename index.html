@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07090d">
-<title>VÄNÄ MotoLab – Contact RPM + Knock Sweep Tester v5</title>
+<title>VÄNÄ MotoLab – Contact RPM + Knock Sweep Tester v6</title>
 <style>
 :root{
  --bg:#06070a;--panel:#11161e;--panel2:#0b0f14;--line:#2b3440;--txt:#f5f7fa;--muted:#9aa6b5;
@@ -70,8 +70,8 @@ canvas{width:100%;height:190px;background:#070a0e;border:1px solid #26303a;borde
 <body>
 <div class="wrap">
 <header>
- <div><div class="brand">VÄNÄ <b>MOTOLAB</b></div><div class="sub">CONTACT RPM + KNOCK SWEEP v5</div></div>
- <div class="pill">DIGITAL CAMERA RPM · 20–1000 Hz · 1–15 kHz</div>
+ <div><div class="brand">VÄNÄ <b>MOTOLAB</b></div><div class="sub">CONTACT RPM + KNOCK SWEEP v6</div></div>
+ <div class="pill">AUTO LCD TRACK · CAMERA RPM · 20–1000 Hz · 1–15 kHz</div>
 </header>
 
 <section class="card">
@@ -108,36 +108,40 @@ canvas{width:100%;height:190px;background:#070a0e;border:1px solid #26303a;borde
 
 
 <section class="card" id="cameraCard">
- <div class="k">3 · DIGITAALINEN KAMERA-RPM / CONTACT RPM + KNOCK SWEEP</div>
- <div class="status">Suuntaa kamera digitaaliseen kierroslukumittariin. Rajaa vain LCD-numerot: napauta ensin näytön numeroalueen VASEN YLÄKULMA ja sitten OIKEA ALAKULMA. Sovellus lukee 7-segmenttityyppiset numerot ja tallentaa ne samalle aikajanalle audion kanssa. Mittarin päivitysviive arvioidaan automaattisesti.</div>
+ <div class="k">3 · AUTOMAATTINEN DIGITAALINEN KAMERA-RPM / CONTACT RPM + KNOCK SWEEP</div>
+ <div class="status">Suuntaa kamera kierroslukumittaria kohti. V6 yrittää löytää LCD-näytön automaattisesti koko kuvasta, lukitsee siihen ja seuraa näyttöä puhelimen liikkuessa. Jos automaattihaku ei heti löydä näyttöä, napauta näyttöä kerran tai rajaa se varmistuksena kahdella pisteellä.</div>
  <div class="row" style="margin-top:9px">
   <button id="startCam" class="primary">KÄYNNISTÄ KAMERA</button>
   <select id="camFacing"><option value="environment">Takakamera</option><option value="user">Etukamera</option></select>
+  <button id="forceSearch" class="ghost">HAE NÄYTTÖ</button>
  </div>
  <div style="position:relative;margin-top:10px">
    <video id="camVideo" playsinline muted style="width:100%;max-height:420px;object-fit:contain;background:#050608;border:1px solid #26303a;border-radius:14px"></video>
    <canvas id="camCanvas" width="900" height="500" style="position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0"></canvas>
  </div>
- <div class="grid3" style="margin-top:8px">
-   <button id="calTL" class="ghost small">1. NUMEROALUEEN VASEN YLÄ</button>
-   <button id="calBR" class="ghost small">2. NUMEROALUEEN OIKEA ALA</button>
-   <button id="clearDigitalCal" class="ghost small">TYHJENNÄ RAJAUS</button>
+ <div class="row" style="margin-top:8px">
+   <button id="tapDisplay" class="ghost small">NAPAUTA NÄYTTÖÄ</button>
+   <button id="calTL" class="ghost small">VARA: VASEN YLÄ</button>
+   <button id="calBR" class="ghost small">VARA: OIKEA ALA</button>
+   <button id="clearDigitalCal" class="ghost small">NOLLAA SEURANTA</button>
  </div>
  <div class="row">
-   <div><label>Numeroiden määrä</label><select id="digitCount"><option value="4" selected>4 numeroa (esim. 1500)</option><option value="5">5 numeroa</option></select></div>
-   <div><label>LCD-segmentit</label><select id="lcdPolarity"><option value="dark" selected>Tummat numerot vaalealla</option><option value="bright">Vaaleat numerot tummalla</option></select></div>
+   <div><label>Numeroiden määrä</label><select id="digitCount"><option value="4" selected>4 numeroa</option><option value="5">5 numeroa</option></select></div>
+   <div><label>LCD</label><select id="lcdPolarity"><option value="dark" selected>Tummat numerot / vaalea LCD</option><option value="bright">Vaaleat numerot / tumma LCD</option></select></div>
+   <div><label>Näytön haku</label><select id="autoDisplay"><option value="on" selected>Automaattinen + seuranta</option><option value="track">Vain seuranta lukituksen jälkeen</option></select></div>
  </div>
  <div class="row">
    <div><label>Kameran live-RPM</label><div class="metric"><b id="camRpm">—</b><span>CAM RPM</span></div></div>
    <div><label>Tunnistus</label><div class="metric"><b id="camConf">—</b><span>CONF</span></div></div>
+   <div><label>Kameralukitus</label><div class="metric"><b id="camLock">SEARCHING</b><span>DISPLAY</span></div></div>
  </div>
  <div class="status" id="camStatus">Kamera ei ole käynnissä.</div>
- <div class="status" style="margin-top:7px">Vihreä laatikko = luettava numeroalue. Jos live-RPM ei vastaa mittarin näyttöä, rajaa numeroalue uudelleen mahdollisimman tiukasti niin, ettei RPM-teksti tai kehys jää mukaan.</div>
+ <div class="status" style="margin-top:7px">Vihreä laatikko seuraa LCD-näyttöä. CAM RPM:n pitää vastata mittarin näyttöä ennen sweepiä. Yksittäiset epäloogiset numerot hylätään ja raakatunnistus tallennetaan silti JSONiin.</div>
  <div class="row" style="margin-top:10px">
-   <button id="startSweep" class="good">ALOITA SWEEP</button>
+   <button id="startSweep" class="good" disabled>ALOITA SWEEP</button>
    <button id="stopSweep" class="warn" disabled>LOPETA SWEEP</button>
  </div>
- <div class="status" id="sweepStatus" style="margin-top:7px">Kiinnitä kuuloke jatkomutteriin alumiinishimmillä tiukasti, käynnistä kamera + mikki ja aloita sweep. Kaasuttele rauhallisesti ylös ja alas.</div>
+ <div class="status" id="sweepStatus" style="margin-top:7px">Kiinnitä kuuloke jatkomutteriin alumiinishimmillä. Sweep vapautuu, kun mikki on päällä ja kamera on saanut luotettavan RPM-lukituksen.</div>
 </section>
 
 <section class="card hero">
@@ -238,7 +242,7 @@ stepText:$('stepText'),targetText:$('targetText'),placeText:$('placeText'),instr
 rpm:$('rpm'),conf:$('conf'),level:$('level'),hf:$('hf'),spec:$('spec'),startSession:$('startSession'),resumeSession:$('resumeSession'),
 tubeLen:$('tubeLen'),distance:$('distance'),stud:$('stud'),pipeDia:$('pipeDia'),note:$('note'),resultsBody:$('resultsBody'),
 exportJson:$('exportJson'),exportCsv:$('exportCsv'),countdown:$('countdown'),measure:$('measure'),skip:$('skip'),back:$('back'),
-startCam:$('startCam'),camFacing:$('camFacing'),camVideo:$('camVideo'),camCanvas:$('camCanvas'),calTL:$('calTL'),calBR:$('calBR'),clearDigitalCal:$('clearDigitalCal'),digitCount:$('digitCount'),lcdPolarity:$('lcdPolarity'),camRpm:$('camRpm'),camConf:$('camConf'),camStatus:$('camStatus'),startSweep:$('startSweep'),stopSweep:$('stopSweep'),sweepStatus:$('sweepStatus'),knockDb:$('knockDb'),knockPeak:$('knockPeak'),knockScore:$('knockScore'),knockEvents:$('knockEvents'),knockSpec:$('knockSpec'),downloadSweepWav:$('downloadSweepWav'),wavStatus:$('wavStatus')};
+startCam:$('startCam'),camFacing:$('camFacing'),camVideo:$('camVideo'),camCanvas:$('camCanvas'),forceSearch:$('forceSearch'),tapDisplay:$('tapDisplay'),calTL:$('calTL'),calBR:$('calBR'),clearDigitalCal:$('clearDigitalCal'),digitCount:$('digitCount'),lcdPolarity:$('lcdPolarity'),autoDisplay:$('autoDisplay'),camRpm:$('camRpm'),camConf:$('camConf'),camLock:$('camLock'),camStatus:$('camStatus'),startSweep:$('startSweep'),stopSweep:$('stopSweep'),sweepStatus:$('sweepStatus'),knockDb:$('knockDb'),knockPeak:$('knockPeak'),knockScore:$('knockScore'),knockEvents:$('knockEvents'),knockSpec:$('knockSpec'),downloadSweepWav:$('downloadSweepWav'),wavStatus:$('wavStatus')};
 
 let places=[
  {name:'Paisarin loppu / stingerin alku',kind:'rpm_reference',enabled:true,instruction:'Pidä AirPod samalla tavalla kuin eilisessä toimivassa RPM-kalibroinnissa.'},
@@ -282,8 +286,12 @@ ui.editPlaces.onclick=()=>ui.placesEditor.classList.toggle('hidden');
 ui.addPlace.onclick=()=>{places.push({name:'Uusi mittauspaikka',kind:'custom',enabled:true,instruction:'Aseta mikrofoni valittuun paikkaan.'});renderPlaces();};
 
 
-let camStream=null,camCtx=null,camCal={tl:null,br:null},camPick=null,camLive={rpm:null,conf:0,digits:null};
+
+let camStream=null,camCtx=null,camCal={tl:null,br:null},camPick=null;
+let camBox=null,camTemplate=null,camLive={rpm:null,raw_rpm:null,conf:0,digits:null,display_conf:0,locked:false};
+let camHistory=[],lastDisplaySearch=0,forceDisplaySearch=true,camFrameNo=0;
 let sweepActive=false,sweepData=[],lastSweepCapture=0,sweepStartedAt=0;
+const trackCanvas=document.createElement('canvas'), trackCtx=trackCanvas.getContext('2d',{willReadFrequently:true});
 
 async function startCamera(){
  try{
@@ -291,100 +299,213 @@ async function startCamera(){
   camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:ui.camFacing.value},width:{ideal:1920},height:{ideal:1080}},audio:false});
   ui.camVideo.srcObject=camStream;await ui.camVideo.play();
   camCtx=ui.camCanvas.getContext('2d',{willReadFrequently:true});
-  ui.camStatus.textContent='Kamera ON. Rajaa LCD:n numeroalue kahdella pisteellä.';
+  camBox=null;camTemplate=null;camHistory=[];forceDisplaySearch=true;
+  ui.camLock.textContent='SEARCHING';ui.camRpm.textContent='—';ui.camConf.textContent='—';
+  ui.camStatus.textContent='Kamera ON · etsin LCD-näyttöä automaattisesti.';
   requestAnimationFrame(cameraLoop);
  }catch(e){ui.camStatus.textContent='Kameravirhe: '+e.message}
 }
 ui.startCam.onclick=startCamera;
-function setDigitalPick(k){
- camPick=k;
- ui.camStatus.textContent='Napauta videosta '+(k==='tl'?'NUMEROALUEEN VASEN YLÄKULMA':'NUMEROALUEEN OIKEA ALAKULMA')+'.';
-}
-ui.calTL.onclick=()=>setDigitalPick('tl');
-ui.calBR.onclick=()=>setDigitalPick('br');
-ui.clearDigitalCal.onclick=()=>{camCal={tl:null,br:null};camLive={rpm:null,conf:0,digits:null};ui.camRpm.textContent='—';ui.camConf.textContent='—';ui.camStatus.textContent='Rajaus tyhjennetty.';saveState();};
+ui.forceSearch.onclick=()=>{forceDisplaySearch=true;camBox=null;camTemplate=null;camHistory=[];ui.camLock.textContent='SEARCHING';ui.camStatus.textContent='Pakotettu koko kuvan LCD-haku.';};
+function setDigitalPick(k){camPick=k;ui.camStatus.textContent='Napauta videosta '+(k==='tl'?'LCD:n VASEN YLÄKULMA':'LCD:n OIKEA ALAKULMA')+'.';}
+ui.calTL.onclick=()=>setDigitalPick('tl');ui.calBR.onclick=()=>setDigitalPick('br');
+ui.tapDisplay.onclick=()=>{camPick='center';ui.camStatus.textContent='Napauta LCD-näytön keskelle. Sovellus hakee sen ympäriltä.';};
+ui.clearDigitalCal.onclick=()=>{camCal={tl:null,br:null};camBox=null;camTemplate=null;camHistory=[];camLive={rpm:null,raw_rpm:null,conf:0,digits:null,display_conf:0,locked:false};forceDisplaySearch=true;ui.camRpm.textContent='—';ui.camConf.textContent='—';ui.camLock.textContent='SEARCHING';ui.camStatus.textContent='Seuranta nollattu.';saveState();};
+
 ui.camCanvas.addEventListener('click',e=>{
  if(!camPick)return;
  const r=ui.camCanvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*ui.camCanvas.width,y=(e.clientY-r.top)/r.height*ui.camCanvas.height;
- camCal[camPick]={x,y};camPick=null;
- ui.camStatus.textContent=camCal.tl&&camCal.br?'Numeroalue rajattu. Tarkista live-RPM.':'Valitse toinen rajauspiste.';
- saveState();
+ if(camPick==='center'){
+   const ww=ui.camCanvas.width*.30,hh=ww*.38;
+   camBox={x:Math.max(0,x-ww/2),y:Math.max(0,y-hh/2),w:Math.min(ww,ui.camCanvas.width),h:Math.min(hh,ui.camCanvas.height)};
+   forceDisplaySearch=false;ui.camStatus.textContent='Näyttöehdokas asetettu. Seuranta tarkentaa rajauksen.';
+ }else{
+   camCal[camPick]={x,y};
+   if(camCal.tl&&camCal.br){
+     camBox=boxFromCal();forceDisplaySearch=false;captureTemplate();
+     ui.camStatus.textContent='Varmistusrajaus asetettu. Seuranta käynnissä.';
+   } else ui.camStatus.textContent='Valitse toinen rajauspiste.';
+ }
+ camPick=null;saveState();
 });
+function boxFromCal(){
+ if(!camCal.tl||!camCal.br)return null;
+ return {x:Math.min(camCal.tl.x,camCal.br.x),y:Math.min(camCal.tl.y,camCal.br.y),w:Math.abs(camCal.br.x-camCal.tl.x),h:Math.abs(camCal.br.y-camCal.tl.y)};
+}
+function clampBox(b,w,h){
+ if(!b)return null;let x=Math.max(0,Math.min(w-8,b.x)),y=Math.max(0,Math.min(h-8,b.y));
+ let bw=Math.max(12,Math.min(w-x,b.w)),bh=Math.max(10,Math.min(h-y,b.h));
+ return {x,y,w:bw,h:bh};
+}
+function smoothBox(a,b,k=.28){
+ if(!a)return b;return {x:a.x*(1-k)+b.x*k,y:a.y*(1-k)+b.y*k,w:a.w*(1-k)+b.w*k,h:a.h*(1-k)+b.h*k};
+}
+function frameGray(img,w,h,step=1){
+ const out=new Float32Array(Math.ceil(w/step)*Math.ceil(h/step)),ow=Math.ceil(w/step);let q=0;
+ for(let y=0;y<h;y+=step)for(let x=0;x<w;x+=step){const p=(y*w+x)*4;out[q++]=.299*img[p]+.587*img[p+1]+.114*img[p+2]}
+ return {g:out,w:ow,h:Math.ceil(h/step),step};
+}
+function meanStd(arr){let s=0,s2=0;for(const v of arr){s+=v;s2+=v*v}const m=s/arr.length;return {m,sd:Math.sqrt(Math.max(0,s2/arr.length-m*m))};}
+function findDisplayAuto(img,w,h){
+ // Coarse connected-component search for a relatively uniform LCD rectangle surrounded by darker housing.
+ const S=6,cw=Math.floor(w/S),ch=Math.floor(h/S),gray=new Float32Array(cw*ch);let s=0,s2=0;
+ for(let yy=0;yy<ch;yy++)for(let xx=0;xx<cw;xx++){let ss=0,n=0;for(let dy=0;dy<S;dy+=2)for(let dx=0;dx<S;dx+=2){const x=xx*S+dx,y=yy*S+dy;if(x>=w||y>=h)continue;const p=(y*w+x)*4;ss+=.299*img[p]+.587*img[p+1]+.114*img[p+2];n++;}const v=ss/n;gray[yy*cw+xx]=v;s+=v;s2+=v*v}
+ const mean=s/gray.length,sd=Math.sqrt(Math.max(0,s2/gray.length-mean*mean));
+ const thresholds=[Math.min(225,mean+sd*.35),Math.min(235,mean+sd*.65),110,135,155];
+ let best=null;
+ for(const th of thresholds){
+   const mask=new Uint8Array(gray.length);
+   for(let i=0;i<gray.length;i++)mask[i]=gray[i]>th?1:0;
+   const seen=new Uint8Array(mask.length),stack=[];
+   for(let i=0;i<mask.length;i++){
+     if(!mask[i]||seen[i])continue;
+     let minx=cw,maxx=0,miny=ch,maxy=0,count=0;stack.push(i);seen[i]=1;
+     while(stack.length){const j=stack.pop(),x=j%cw,y=(j/cw)|0;minx=Math.min(minx,x);maxx=Math.max(maxx,x);miny=Math.min(miny,y);maxy=Math.max(maxy,y);count++;
+       for(const [nx,ny] of [[x-1,y],[x+1,y],[x,y-1],[x,y+1]])if(nx>=0&&ny>=0&&nx<cw&&ny<ch){const ni=ny*cw+nx;if(mask[ni]&&!seen[ni]){seen[ni]=1;stack.push(ni)}}}
+     const bw=maxx-minx+1,bh=maxy-miny+1,area=bw*bh,ar=bw/bh,fill=count/area,areaFrac=area/(cw*ch);
+     if(ar<1.35||ar>5.8||areaFrac<.004||areaFrac>.36||fill<.46)continue;
+     // Prefer LCD-like aspect, good rectangular fill and practical size.
+     const arScore=Math.exp(-Math.abs(Math.log(ar/2.4))*.9), sizeScore=Math.min(1,areaFrac/.06);
+     const score=fill*42+arScore*25+sizeScore*18+(th>mean?8:0);
+     if(!best||score>best.score)best={x:minx*S,y:miny*S,w:bw*S,h:bh*S,score};
+   }
+ }
+ if(!best)return null;
+ // Pad inward/outward slightly so digits are inside but bezel is limited.
+ const px=best.w*.035,py=best.h*.08;
+ return clampBox({x:best.x+px,y:best.y+py,w:best.w-2*px,h:best.h-2*py},w,h);
+}
+function cropGray(img,w,h,b,ow=64,oh=28){
+ b=clampBox(b,w,h);const out=new Float32Array(ow*oh);
+ for(let yy=0;yy<oh;yy++)for(let xx=0;xx<ow;xx++){
+   const sx=Math.max(0,Math.min(w-1,Math.round(b.x+(xx+.5)/ow*b.w)));
+   const sy=Math.max(0,Math.min(h-1,Math.round(b.y+(yy+.5)/oh*b.h)));
+   const p=(sy*w+sx)*4;out[yy*ow+xx]=.299*img[p]+.587*img[p+1]+.114*img[p+2];
+ } return out;
+}
+function normPatch(a){const {m,sd}=meanStd(a),out=new Float32Array(a.length),den=sd||1;for(let i=0;i<a.length;i++)out[i]=(a[i]-m)/den;return out}
+function captureTemplate(img,w,h){
+ if(!camBox||!img)return;
+ camTemplate=normPatch(cropGray(img,w,h,camBox));
+}
+function templateScore(img,w,h,b){
+ if(!camTemplate)return -9;const q=normPatch(cropGray(img,w,h,b));let s=0;for(let i=0;i<q.length;i++)s+=q[i]*camTemplate[i];return s/q.length;
+}
+function trackDisplay(img,w,h){
+ if(!camBox)return null;
+ if(!camTemplate)captureTemplate(img,w,h);
+ const b=camBox,scales=[.88,.96,1,1.04,1.12],dxs=[-0.22,-0.11,0,.11,.22],dys=[-0.28,-0.14,0,.14,.28];
+ let best={score:-9,b};
+ for(const sc of scales)for(const dx of dxs)for(const dy of dys){
+   const nw=b.w*sc,nh=b.h*sc,cx=b.x+b.w/2+dx*b.w,cy=b.y+b.h/2+dy*b.h;
+   const c=clampBox({x:cx-nw/2,y:cy-nh/2,w:nw,h:nh},w,h),score=templateScore(img,w,h,c);
+   if(score>best.score)best={score,b:c};
+ }
+ if(best.score>.34)return {...best.b,score:best.score};
+ return null;
+}
 
-// Seven-segment decoder. Segment order: top, upper-left, upper-right, middle, lower-left, lower-right, bottom.
+// 7-segment recognition using segment-area occupancy instead of single sample points.
 const SEG_DIGITS={
  '1110111':'0','0010010':'1','1011101':'2','1011011':'3','0111010':'4',
  '1101011':'5','1101111':'6','1010010':'7','1111111':'8','1111011':'9'
 };
-function segKey(bits){return bits.map(x=>x?1:0).join('')}
 function nearestDigit(bits){
- let best={digit:null,dist:99};
- for(const [k,d] of Object.entries(SEG_DIGITS)){
-  let dist=0;for(let i=0;i<7;i++)dist+=(+k[i]!==+bits[i]);
-  if(dist<best.dist)best={digit:d,dist};
- }
+ let best={digit:null,dist:99};for(const [k,d] of Object.entries(SEG_DIGITS)){let dist=0;for(let i=0;i<7;i++)dist+=(+k[i]!==+bits[i]);if(dist<best.dist)best={digit:d,dist}}return best;
+}
+function otsu(vals){
+ const hist=new Uint32Array(256);for(const v of vals)hist[Math.max(0,Math.min(255,v|0))]++;
+ let sum=0,total=vals.length;for(let i=0;i<256;i++)sum+=i*hist[i];let sumB=0,wB=0,best=0,max=-1;
+ for(let t=0;t<256;t++){wB+=hist[t];if(!wB)continue;const wF=total-wB;if(!wF)break;sumB+=t*hist[t];const mB=sumB/wB,mF=(sum-sumB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>max){max=v;best=t}}
  return best;
 }
-function patchMean(gray,w,h,cx,cy,rx,ry){
- let s=0,n=0;
- const x0=Math.max(0,Math.floor(cx-rx)),x1=Math.min(w-1,Math.ceil(cx+rx));
- const y0=Math.max(0,Math.floor(cy-ry)),y1=Math.min(h-1,Math.ceil(cy+ry));
- for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){s+=gray[y*w+x];n++}
- return n?s/n:255;
+function areaFrac(bin,w,h,x0,y0,x1,y1){
+ x0=Math.max(0,Math.floor(x0));y0=Math.max(0,Math.floor(y0));x1=Math.min(w,Math.ceil(x1));y1=Math.min(h,Math.ceil(y1));
+ let s=0,n=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){s+=bin[y*w+x];n++}return n?s/n:0;
 }
-function detectDigitalRpm(img,w,h){
- if(!camCal.tl||!camCal.br)return null;
- let x0=Math.round(Math.min(camCal.tl.x,camCal.br.x)),x1=Math.round(Math.max(camCal.tl.x,camCal.br.x));
- let y0=Math.round(Math.min(camCal.tl.y,camCal.br.y)),y1=Math.round(Math.max(camCal.tl.y,camCal.br.y));
- x0=Math.max(0,x0);y0=Math.max(0,y0);x1=Math.min(w-1,x1);y1=Math.min(h-1,y1);
- const rw=x1-x0,rh=y1-y0,nDigits=+ui.digitCount.value||4;
- if(rw<80||rh<30)return null;
- const gray=new Float32Array(rw*rh);let mn=255,mx=0,mean=0;
- for(let y=0;y<rh;y++)for(let x=0;x<rw;x++){
-  const p=((y0+y)*w+(x0+x))*4, g=.299*img[p]+.587*img[p+1]+.114*img[p+2];
-  gray[y*rw+x]=g;mn=Math.min(mn,g);mx=Math.max(mx,g);mean+=g;
- }
- mean/=gray.length;
- const dark=ui.lcdPolarity.value==='dark', dw=rw/nDigits;
- const pos=[[.50,.12],[.18,.29],[.82,.29],[.50,.50],[.18,.71],[.82,.71],[.50,.88]];
- let out='',totalConf=0,ok=0;
+function decodeBox(img,w,h,b){
+ b=clampBox(b,w,h);const rw=Math.max(80,Math.round(b.w)),rh=Math.max(28,Math.round(b.h)),gray=new Float32Array(rw*rh);
+ for(let y=0;y<rh;y++)for(let x=0;x<rw;x++){const sx=Math.min(w-1,Math.max(0,Math.round(b.x+(x+.5)/rw*b.w))),sy=Math.min(h-1,Math.max(0,Math.round(b.y+(y+.5)/rh*b.h))),p=(sy*w+sx)*4;gray[y*rw+x]=.299*img[p]+.587*img[p+1]+.114*img[p+2]}
+ const th=otsu(gray),dark=ui.lcdPolarity.value==='dark',bin=new Uint8Array(gray.length);
+ for(let i=0;i<gray.length;i++)bin[i]=dark?(gray[i]<th?1:0):(gray[i]>th?1:0);
+
+ // Trim sparse bezel margins by projection.
+ let left=0,right=rw-1,top=0,bottom=rh-1;
+ const col=x=>{let s=0;for(let y=0;y<rh;y++)s+=bin[y*rw+x];return s/rh}, row=y=>{let s=0;for(let x=0;x<rw;x++)s+=bin[y*rw+x];return s/rw};
+ while(left<rw*.18&&col(left)<.025)left++;while(right>rw*.82&&col(right)<.025)right--;
+ while(top<rh*.18&&row(top)<.02)top++;while(bottom>rh*.82&&row(bottom)<.02)bottom--;
+ const tw=Math.max(1,right-left+1),thh=Math.max(1,bottom-top+1),nDigits=+ui.digitCount.value||4,dw=tw/nDigits;
+
+ const rects=[
+  [.25,.03,.75,.18], [.04,.14,.23,.48], [.77,.14,.96,.48],
+  [.25,.42,.75,.58], [.04,.52,.23,.86], [.77,.52,.96,.86], [.25,.82,.75,.98]
+ ];
+ let digits='',scoreSum=0,exact=0;
  for(let d=0;d<nDigits;d++){
-  const vals=pos.map(([px,py])=>patchMean(gray,rw,rh,d*dw+px*dw,py*rh,dw*.09,rh*.045));
-  const lo=Math.min(...vals),hi=Math.max(...vals),mid=(lo+hi)/2;
-  const bits=vals.map(v=>dark?v<mid:v>mid);
-  let hit=nearestDigit(bits);
-  // confidence combines exact/near segment match and local contrast
-  const contrast=Math.min(1,(hi-lo)/55), c=Math.max(0,100-(hit.dist*28))*contrast;
-  if(hit.dist<=1){out+=hit.digit;totalConf+=c;ok++;}else out+='?';
+   const xbase=left+d*dw,vals=rects.map(r=>areaFrac(bin,rw,rh,xbase+r[0]*dw,top+r[1]*thh,xbase+r[2]*dw,top+r[3]*thh));
+   // Active segments have larger ink occupancy. Find separation from the seven local values.
+   const sorted=[...vals].sort((a,b)=>a-b),cut=(sorted[2]+sorted[4])/2;
+   const bits=vals.map(v=>v>Math.max(.09,cut));
+   const hit=nearestDigit(bits),margin=Math.max(0,Math.min(1,(sorted[4]-sorted[2])/.28));
+   const conf=Math.max(0,100-hit.dist*34)*(0.42+0.58*margin);
+   digits+=hit.dist<=1?hit.digit:'?';scoreSum+=conf;if(hit.dist===0)exact++;
  }
- if(!ok||out.includes('?'))return {rpm:null,digits:out,conf:Math.round(totalConf/Math.max(1,nDigits))};
- const rpm=parseInt(out,10);
- if(!Number.isFinite(rpm)||rpm<0||rpm>20000)return {rpm:null,digits:out,conf:0};
- return {rpm,digits:out,conf:Math.round(totalConf/nDigits)};
+ const raw=digits.includes('?')?null:parseInt(digits,10),conf=Math.round(scoreSum/nDigits);
+ if(raw==null||!Number.isFinite(raw)||raw<500||raw>15000)return {rpm:null,raw_rpm:raw,digits,conf,exact,threshold:th};
+ return {rpm:raw,raw_rpm:raw,digits,conf,exact,threshold:th};
+}
+function updateTemporal(rec,now){
+ camHistory.push({t:now,rpm:rec?.rpm??null,conf:rec?.conf??0,digits:rec?.digits??null});while(camHistory.length>12)camHistory.shift();
+ const good=camHistory.filter(x=>Number.isFinite(x.rpm)&&x.conf>=32);
+ let accepted=null,conf=rec?.conf||0;
+ if(Number.isFinite(rec?.rpm)&&rec.conf>=32){
+   // Median of recent good reads suppresses single-frame 8888/9??? errors.
+   const recent=good.slice(-5).map(x=>x.rpm).sort((a,b)=>a-b),med=recent.length?recent[(recent.length/2)|0]:rec.rpm;
+   const prev=Number.isFinite(camLive.rpm)?camLive.rpm:null,dt=Math.max(.04,(now-(camLive.t||now-100))/1000);
+   const maxJump=900+12000*dt;
+   if(prev==null||Math.abs(rec.rpm-prev)<=maxJump||Math.abs(rec.rpm-med)<350)accepted=rec.rpm;
+ }
+ const locked=good.length>=5 && (good.slice(-8).length>=5);
+ return {rpm:accepted,raw_rpm:rec?.raw_rpm??null,digits:rec?.digits??null,conf,locked};
+}
+function updateSweepGate(){
+ const micOK=!!an,camOK=!!camLive.locked&&Number.isFinite(camLive.rpm)&&camLive.conf>=32;
+ if(!sweepActive)ui.startSweep.disabled=!(micOK&&camOK);
 }
 function cameraLoop(){
  if(!camStream||ui.camVideo.readyState<2){requestAnimationFrame(cameraLoop);return}
- const c=ui.camCanvas,ctx=camCtx,w=c.width,h=c.height;
- ctx.clearRect(0,0,w,h);ctx.drawImage(ui.camVideo,0,0,w,h);
- const im=ctx.getImageData(0,0,w,h),d=detectDigitalRpm(im.data,w,h);
+ const c=ui.camCanvas,ctx=camCtx,w=c.width,h=c.height;camFrameNo++;
+ ctx.clearRect(0,0,w,h);ctx.drawImage(ui.camVideo,0,0,w,h);const im=ctx.getImageData(0,0,w,h),now=performance.now();
+
+ // Tracking every frame; auto-search whole frame periodically or when tracking is lost.
+ let tracked=camBox?trackDisplay(im.data,w,h):null;
+ if(tracked){camBox=smoothBox(camBox,tracked,.34)}
+ else if((ui.autoDisplay.value==='on')&&(forceDisplaySearch||!camBox||now-lastDisplaySearch>700)){
+   lastDisplaySearch=now;const found=findDisplayAuto(im.data,w,h);
+   if(found){camBox=smoothBox(camBox,found,.55);captureTemplate(im.data,w,h);forceDisplaySearch=false}
+ }
+ if(camBox&&!camTemplate)captureTemplate(im.data,w,h);
+ let rec=camBox?decodeBox(im.data,w,h,camBox):null,tem=updateTemporal(rec,now);
+ if(tem.rpm!=null){camLive={...tem,t:now,display_conf:tracked?.score??0};}
+ else camLive={...camLive,raw_rpm:tem.raw_rpm,digits:tem.digits,conf:tem.conf,locked:tem.locked&&Number.isFinite(camLive.rpm),t:now};
+
  ctx.clearRect(0,0,w,h);
- if(camCal.tl&&camCal.br){
-  const x=Math.min(camCal.tl.x,camCal.br.x),y=Math.min(camCal.tl.y,camCal.br.y),ww=Math.abs(camCal.br.x-camCal.tl.x),hh=Math.abs(camCal.br.y-camCal.tl.y);
-  ctx.strokeStyle='#35df8b';ctx.lineWidth=4;ctx.strokeRect(x,y,ww,hh);
-  const n=+ui.digitCount.value||4;ctx.strokeStyle='rgba(53,223,139,.35)';ctx.lineWidth=1;
-  for(let i=1;i<n;i++){ctx.beginPath();ctx.moveTo(x+ww*i/n,y);ctx.lineTo(x+ww*i/n,y+hh);ctx.stroke();}
+ if(camBox){
+   ctx.strokeStyle=camLive.locked?'#35df8b':'#ffb020';ctx.lineWidth=4;ctx.strokeRect(camBox.x,camBox.y,camBox.w,camBox.h);
+   const n=+ui.digitCount.value||4;ctx.strokeStyle='rgba(53,223,139,.28)';ctx.lineWidth=1;
+   for(let i=1;i<n;i++){ctx.beginPath();ctx.moveTo(camBox.x+camBox.w*i/n,camBox.y);ctx.lineTo(camBox.x+camBox.w*i/n,camBox.y+camBox.h);ctx.stroke();}
  }
- if(d){
-  camLive=d;ui.camRpm.textContent=d.rpm==null?'—':d.rpm;ui.camConf.textContent=(d.conf||0)+'%';
-  ui.camStatus.textContent='LCD: '+(d.digits||'—')+(d.rpm==null?' · rajaa numerot tiukemmin':' · kamera-RPM '+d.rpm);
- }
- requestAnimationFrame(cameraLoop);
+ ui.camRpm.textContent=Number.isFinite(camLive.rpm)?Math.round(camLive.rpm):'—';ui.camConf.textContent=(camLive.conf||0)+'%';
+ ui.camLock.textContent=camLive.locked?'LOCKED':'SEARCHING';
+ if(camBox)ui.camStatus.textContent=(camLive.locked?'LOCKED · ':'TRACKING · ')+'LCD '+(camLive.digits||'—')+(Number.isFinite(camLive.rpm)?' · '+Math.round(camLive.rpm)+' rpm':' · tunnistus hakee');
+ else ui.camStatus.textContent='SEARCHING DISPLAY · pidä koko LCD hetki kamerakuvassa.';
+ updateSweepGate();requestAnimationFrame(cameraLoop);
 }
 function audioPeakHz(){if(!freq||!ac||!an)return null;let best=-999,bf=0;for(let f=25;f<=300;f+=2){const d=dbAt(f);if(d>best){best=d;bf=f}}return bf}
 function sweepCapture(now=performance.now()){
  if(!sweepActive||now-lastSweepCapture<200)return;lastSweepCapture=now;if(!an)return;an.getFloatFrequencyData(freq);
  const bins=[];for(let f=WIDE_SPEC.minHz;f<=WIDE_SPEC.maxHz;f+=WIDE_SPEC.stepHz)bins.push(+dbAt(f).toFixed(1));
- sweepData.push({t:Date.now(),cam_rpm:(camLive.rpm==null||camLive.conf<25)?null:+camLive.rpm,cam_rpm_raw:camLive.rpm==null?null:+camLive.rpm,cam_digits:camLive.digits||null,cam_conf:+(camLive.conf||0).toFixed(1),audio_peak_hz:audioPeakHz(),db:bins});
+ sweepData.push({t:Date.now(),cam_rpm:(camLive.rpm==null||camLive.conf<32||!camLive.locked)?null:+camLive.rpm,cam_rpm_raw:camLive.raw_rpm==null?null:+camLive.raw_rpm,cam_digits:camLive.digits||null,cam_conf:+(camLive.conf||0).toFixed(1),cam_locked:!!camLive.locked,cam_box:camBox?{x:+camBox.x.toFixed(1),y:+camBox.y.toFixed(1),w:+camBox.w.toFixed(1),h:+camBox.h.toFixed(1)}:null,audio_peak_hz:audioPeakHz(),db:bins});
 }
 function corr(a,b){const n=Math.min(a.length,b.length);if(n<5)return-9;let ma=0,mb=0;for(let i=0;i<n;i++){ma+=a[i];mb+=b[i]}ma/=n;mb/=n;let s=0,sa=0,sb=0;for(let i=0;i<n;i++){const x=a[i]-ma,y=b[i]-mb;s+=x*y;sa+=x*x;sb+=y*y}return s/Math.sqrt(sa*sb||1)}
 function estimateLag(rows){
@@ -392,13 +513,13 @@ function estimateLag(rows){
  for(let sh=-10;sh<=10;sh++){let ca=[],au=[];for(let i=1;i<valid.length;i++){const j=i+sh;if(j<1||j>=valid.length)continue;ca.push(valid[i].cam_rpm-valid[i-1].cam_rpm);au.push(valid[j].audio_peak_hz-valid[j-1].audio_peak_hz)}const c=corr(ca,au);if(c>best.corr)best={lag_ms:sh*200,corr:+c.toFixed(3)}}return best;
 }
 ui.startSweep.onclick=()=>{
- if(!an){alert('Käynnistä mikrofoni ensin.');return}if(!camStream){alert('Käynnistä kamera ensin.');return}if(!camCal.tl||!camCal.br){alert('Rajaa digitaalisen RPM-mittarin numeroalue ensin.');return}
+ if(!an){alert('Käynnistä mikrofoni ensin.');return}if(!camStream){alert('Käynnistä kamera ensin.');return}if(!camLive.locked||!Number.isFinite(camLive.rpm)||camLive.conf<32){alert('Odota, että kamera näyttää LOCKED ja järkevän RPM-luvun.');return}
  sweepActive=true;sweepData=[];sweepStartedAt=Date.now();lastSweepCapture=0;lastKnockCapture=0;knockData=[];knockEventCount=0;lastKnockEventT=0;pcmChunks=[];pcmFrames=0;lastSweepWavBlob=null;ui.downloadSweepWav.disabled=true;ui.wavStatus.textContent='PCM-raakatallennus käynnissä…';ui.startSweep.disabled=true;ui.stopSweep.disabled=false;ui.sweepStatus.textContent='CONTACT RPM + KNOCK SWEEP KÄYNNISSÄ — kaasuttele rauhallisesti ylös ja alas. Mittarin viive korjataan lopuksi.';speak('Sweep alkaa. Kaasuttele rauhallisesti ylös ja alas.');
 };
 ui.stopSweep.onclick=()=>{
  if(!sweepActive)return;sweepActive=false;ui.startSweep.disabled=false;ui.stopSweep.disabled=true;const lag=estimateLag(sweepData);const place=plan[idx]?.place||'Valittu mittauspaikka';
  const wavBlob=pcmChunks.length?encodeWav(pcmChunks,ac.sampleRate):null;if(wavBlob){lastSweepWavBlob=wavBlob;lastSweepWavName='VANA_MotoLab_contact_sweep_'+Date.now()+'.wav';ui.downloadSweepWav.disabled=false;ui.wavStatus.textContent='WAV valmis · '+Math.round(wavBlob.size/1024)+' kB · '+ac.sampleRate+' Hz';}
- results.push({session:new Date().toISOString(),project:ui.project.value,type:'contact_rpm_knock_sweep',step_id:'sweep__'+Date.now(),rpm_target:'sweep',rpm_reference:'camera',place,kind:plan[idx]?.kind||'contact',status:'measured',camera_calibration:{...camCal,mode:'digital_7segment',digit_count:+ui.digitCount.value,lcd_polarity:ui.lcdPolarity.value},estimated_meter_lag_ms:lag.lag_ms,lag_correlation:lag.corr,rpm_spectrum:{min_hz:20,max_hz:1000,step_hz:5,snapshot_interval_ms:200,bins_hz:Array.from({length:197},(_,i)=>20+i*5)},knock_config:KNOCK_SPEC,knock_events:knockEventCount,knock_samples:knockData,wav_meta:wavBlob?{sample_rate_hz:ac.sampleRate,channels:1,frames:pcmFrames,bytes:wavBlob.size,file_name:lastSweepWavName}:null,sweep_samples:sweepData});
+ results.push({session:new Date().toISOString(),project:ui.project.value,type:'contact_rpm_knock_sweep',step_id:'sweep__'+Date.now(),rpm_target:'sweep',rpm_reference:'camera',place,kind:plan[idx]?.kind||'contact',status:'measured',camera_calibration:{manual_backup:{...camCal},mode:'auto_display_track_7segment_area_v6',digit_count:+ui.digitCount.value,lcd_polarity:ui.lcdPolarity.value,auto_display:ui.autoDisplay.value},estimated_meter_lag_ms:lag.lag_ms,lag_correlation:lag.corr,rpm_spectrum:{min_hz:20,max_hz:1000,step_hz:5,snapshot_interval_ms:200,bins_hz:Array.from({length:197},(_,i)=>20+i*5)},knock_config:KNOCK_SPEC,knock_events:knockEventCount,knock_samples:knockData,wav_meta:wavBlob?{sample_rate_hz:ac.sampleRate,channels:1,frames:pcmFrames,bytes:wavBlob.size,file_name:lastSweepWavName}:null,sweep_samples:sweepData});
  ui.sweepStatus.textContent=`Sweep valmis: ${sweepData.length} RPM-spektrinäytettä, ${knockData.length} knock-näytettä, ${knockEventCount} poikkeavaa HF-tapahtumaa. Arvioitu mittari↔audio-viive ${lag.lag_ms==null?'ei saatu':lag.lag_ms+' ms'} (korrelaatio ${lag.corr??'—'}).`;renderResults();saveState();speak('Sweep valmis');
 };
 
@@ -620,7 +741,7 @@ function renderResults(){
 function dl(name,type,text){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 ui.downloadSweepWav.onclick=()=>{if(!lastSweepWavBlob)return;const u=URL.createObjectURL(lastSweepWavBlob),a=document.createElement('a');a.href=u;a.download=lastSweepWavName||'VANA_MotoLab_sweep.wav';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
 ui.exportJson.onclick=()=>{
- const payload={app:'VÄNÄ MotoLab Contact RPM + Knock Sweep Tester v5',project:ui.project.value,created:new Date().toISOString(),spectrum_config:WIDE_SPEC,targets:parseTargets(),places,calibrations,results};
+ const payload={app:'VÄNÄ MotoLab Contact RPM + Knock Sweep Tester v6',project:ui.project.value,created:new Date().toISOString(),spectrum_config:WIDE_SPEC,targets:parseTargets(),places,calibrations,results};
  dl(`VANA_MotoLab_test_${Date.now()}.json`,'application/json',JSON.stringify(payload,null,2));
 };
 ui.exportCsv.onclick=()=>{

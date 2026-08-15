@@ -1,21 +1,28 @@
-VÄNÄ MotoLab Contact RPM + Knock Sweep v5
+VÄNÄ MotoLab Contact RPM + Knock Sweep v6
 
-UUTTA v5:
-- Kamera lukee digitaalisen 7-segmenttityyppisen RPM-mittarin numeroita.
-- Rajaus kahdella pisteellä: numeroalueen vasen yläkulma + oikea alakulma.
-- 4 tai 5 numeron valinta.
-- Tummat LCD-numerot vaalealla tai vaaleat numerot tummalla.
-- Live Camera RPM + tunnistusvarmuus.
-- Kamera-RPM, raaka tunnistus, confidence ja audio tallennetaan samalle aikajanalle.
-- Mittarin hidas päivitys huomioidaan edelleen automaattisella viivearviolla.
-- RPM 20–1000 Hz + knock 1–15 kHz + WAV-raakatallennus säilyvät.
+V6 KAMERA:
+- automaattinen LCD-näytön haku koko kamerakuvasta
+- lukitus ja näytön seuranta puhelimen liikkuessa
+- automaattinen uudelleenhaku, jos seuranta katoaa
+- varamenetelmä: napauta LCD:tä kerran tai rajaa vasen ylä + oikea ala
+- segmentit tunnistetaan pinta-alasta, ei yksittäisistä pikseleistä
+- adaptiivinen Otsu-kynnys LCD:n valaistuksen mukaan
+- temporalinen virhesuodatus: yksittäiset väärät numerot hylätään
+- SEARCHING / LOCKED / CAM RPM / confidence näkyvät reaaliajassa
+- sweep vapautuu vasta kun kamera on lukossa ja mikrofoni toimii
+- JSONiin tallentuu hyväksytty RPM, raaka RPM, numerot, confidence, lock-tila ja seurattu LCD-laatikko
 
-KÄYTTÖ:
-1. Avaa index.html HTTPS-ympäristössä/selaimessa, jossa kamera- ja mikrofoniluvat toimivat.
-2. Kiinnitä BT-kuuloke tiukasti pinnapultin jatkomutteriin alumiinishimmillä.
-3. Käynnistä mikrofoni.
-4. Käynnistä kamera ja suuntaa se digitaaliseen RPM-mittariin.
-5. Rajaa VAIN numerot mahdollisimman tiukasti.
-6. Tarkista, että CAM RPM vastaa mittarin näyttöä.
-7. Aloita sweep ja kaasuttele rauhallisesti ylös/alas useita kertoja.
-8. Lopeta sweep ja vie JSON + WAV.
+AUDIO:
+- RPM-spektri 20–1000 Hz / 5 Hz
+- knock 1–15 kHz
+- WAV-raakaääni
+- kameramittarin viivearvio audion suhteen
+
+TESTI:
+1. Kiinnitä kuuloke pinnapultin jatkomutteriin alumiinishimmillä.
+2. Käynnistä mikrofoni.
+3. Käynnistä kamera ja näytä digitaalinen RPM-mittari kameralle.
+4. Odota LOCKED. CAM RPM:n pitää vastata mittarin näyttöä.
+5. Jos SEARCHING jatkuu, paina HAE NÄYTTÖ tai NAPAUTA NÄYTTÖÄ ja napauta LCD:tä kerran.
+6. Aloita sweep ja kaasuttele rauhallisesti ylös/alas.
+7. Lopeta ja vie JSON + WAV.
