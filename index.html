@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07090d">
-<title>VÄNÄ MotoLab – Solo RPM & Knock Tester v1</title>
+<title>VÄNÄ MotoLab – Wide Spectrum RPM & Knock Tester v2</title>
 <style>
 :root{
  --bg:#06070a;--panel:#11161e;--panel2:#0b0f14;--line:#2b3440;--txt:#f5f7fa;--muted:#9aa6b5;
@@ -56,13 +56,22 @@ canvas{width:100%;height:190px;background:#070a0e;border:1px solid #26303a;borde
 .sticky .card{backdrop-filter:blur(10px);background:rgba(12,15,20,.94)}
 .checkrow{display:flex;align-items:center;gap:8px;margin:6px 0}.checkrow input{width:auto}
 .small{font-size:11px;padding:9px}
+.selectorGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:720px){.selectorGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.selectorGrid{grid-template-columns:1fr}}
+.selBtn{min-height:58px;text-align:left;padding:10px 12px;border:1px solid #35404c;background:#0a0f15}
+.selBtn strong{display:block;font-size:13px}.selBtn small{display:block;color:#93a1af;margin-top:3px;font-size:9px}
+.selBtn.active{border-color:#ff5959;box-shadow:0 0 0 2px rgba(255,65,65,.22) inset;background:#251012}
+.selBtn.done{border-color:#287d50;background:#0f2519}.selBtn.done strong:after{content:'  ✓';color:var(--green)}
+.rpmBtns{display:flex;gap:7px;overflow:auto;padding-bottom:3px}.rpmBtns button{min-width:105px;width:auto}.rpmBtns button.active{background:#492020;border-color:#ff5959}
+.spectrumBadge{display:inline-block;border:1px solid #305f48;background:#10281c;color:#8ff0b8;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900;letter-spacing:.06em}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
- <div><div class="brand">VÄNÄ <b>MOTOLAB</b></div><div class="sub">SOLO RPM & KNOCK TESTER v1</div></div>
- <div class="pill">YKSIN KÄYTETTÄVÄ</div>
+ <div><div class="brand">VÄNÄ <b>MOTOLAB</b></div><div class="sub">WIDE SPECTRUM RPM & KNOCK TESTER v2</div></div>
+ <div class="pill">20–1000 Hz · OHJATTU</div>
 </header>
 
 <section class="card">
@@ -70,7 +79,7 @@ canvas{width:100%;height:190px;background:#070a0e;border:1px solid #26303a;borde
  <div class="grid2">
   <div>
    <label>Moottori / projekti</label><input id="project" value="DT testimoottori">
-   <label>RPM-pisteet, pilkulla</label><input id="targets" value="idle,3000,5000,7000,9000">
+   <label>RPM-pisteet, pilkulla</label><input id="targets" value="idle,2000,3000,4000,5000">
    <label>Kalibrointipaikka</label><input id="calPlace" value="Paisarin loppu / stingerin alku">
   </div>
   <div>
@@ -106,8 +115,16 @@ canvas{width:100%;height:190px;background:#070a0e;border:1px solid #26303a;borde
  <div id="progressText" class="status" style="text-align:center;margin-top:6px">0 / 0</div>
 </section>
 
+<section class="card" id="selectorCard">
+ <div class="k">3 · VALITSE RPM JA MITTAUSPAIKKA</div>
+ <div class="status">Valitse ensin RPM ja sitten paikka. Valittu paikka näkyy isosti yllä. Paina vasta sen jälkeen <b>MITTAA</b>.</div>
+ <label>RPM</label><div id="rpmPicker" class="rpmBtns"></div>
+ <label style="margin-top:10px">Mittauspaikka</label><div id="placePicker" class="selectorGrid"></div>
+ <div style="margin-top:9px"><span class="spectrumBadge">LAAJA SPEKTRI 20–1000 Hz · 5 Hz · 200 ms</span></div>
+</section>
+
 <section class="card">
- <div class="k">LIVE</div>
+ <div class="k">LIVE · LAAJA SPEKTRI 20–1000 Hz</div>
  <div class="grid4">
   <div class="metric"><b id="rpm">0</b><span>RPM</span></div>
   <div class="metric"><b id="conf">0%</b><span>RPM CONF</span></div>
@@ -115,12 +132,12 @@ canvas{width:100%;height:190px;background:#070a0e;border:1px solid #26303a;borde
   <div class="metric"><b id="hf">0%</b><span>HF / KNOCK*</span></div>
  </div>
  <canvas id="spec" width="900" height="190" style="margin-top:10px"></canvas>
- <div class="note" style="margin-top:6px">*HF / Knock on kokeellinen värähtely-/korkeataajuusmittari, ei varma nakutustunnistus.</div>
+ <div class="note" style="margin-top:6px">Spektrinäyttö on zoomattu 20–1000 Hz alueelle. Mittauksen aikana koko alue tallennetaan 5 Hz välein 200 ms aikajaksolla. *HF / Knock on kokeellinen mittari, ei varma nakutustunnistus.</div>
 </section>
 
 <section id="calCard" class="card">
  <div class="k">KALIBROINTI</div>
- <div class="status">Jokainen RPM-alue alkaa kalibroinnilla pakoputken loppupäässä. Kalibroinnin jälkeen sama RPM-piste käydään kaikissa mittauspaikoissa ilman uutta kalibrointia.</div>
+ <div class="status">Jokainen RPM-alue alkaa pakoputken/paisarin referenssillä. Sen jälkeen valitse mittauspaikka painikkeesta. Kaikista paikoista tallennetaan sama laaja 20–1000 Hz spektri vertailua varten.</div>
  <div class="bigBtns" style="margin-top:10px">
   <button id="startSession" class="primary">ALOITA TESTISARJA</button>
   <button id="resumeSession" class="ghost">JATKA / PALAUTA</button>
@@ -170,7 +187,7 @@ canvas{width:100%;height:190px;background:#070a0e;border:1px solid #26303a;borde
 const $=x=>document.getElementById(x);
 const ui={project:$('project'),targets:$('targets'),calPlace:$('calPlace'),duration:$('duration'),moveDelay:$('moveDelay'),idleRpm:$('idleRpm'),voice:$('voice'),autoAdvance:$('autoAdvance'),
 editPlaces:$('editPlaces'),placesEditor:$('placesEditor'),placesList:$('placesList'),addPlace:$('addPlace'),mic:$('mic'),startMic:$('startMic'),micStatus:$('micStatus'),
-stepText:$('stepText'),targetText:$('targetText'),placeText:$('placeText'),instruction:$('instruction'),overallFill:$('overallFill'),progressText:$('progressText'),
+stepText:$('stepText'),targetText:$('targetText'),placeText:$('placeText'),instruction:$('instruction'),overallFill:$('overallFill'),progressText:$('progressText'),rpmPicker:$('rpmPicker'),placePicker:$('placePicker'),
 rpm:$('rpm'),conf:$('conf'),level:$('level'),hf:$('hf'),spec:$('spec'),startSession:$('startSession'),resumeSession:$('resumeSession'),
 tubeLen:$('tubeLen'),distance:$('distance'),stud:$('stud'),pipeDia:$('pipeDia'),note:$('note'),resultsBody:$('resultsBody'),
 exportJson:$('exportJson'),exportCsv:$('exportCsv'),countdown:$('countdown'),measure:$('measure'),skip:$('skip'),back:$('back')};
@@ -187,6 +204,8 @@ let places=[
 
 let ac,an,stream,freq,time,raf=0,live={rpm:0,conf:0,db:-120,hf:0,f0:0,harm:[]},lastRaw=0,stable=0,smooth=0;
 let plan=[],idx=-1,results=[],calibrations={},measuring=false,samples=[],timer=null;
+const WIDE_SPEC={minHz:20,maxHz:1000,stepHz:5,intervalMs:200};
+let wideSpec=null,lastWideCapture=0;
 
 function speak(t){ if(!ui.voice.checked||!('speechSynthesis'in window))return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='fi-FI'; u.rate=.95; speechSynthesis.speak(u); }
 function buzz(ms=120){ if(navigator.vibrate) navigator.vibrate(ms); }
@@ -225,7 +244,7 @@ async function startMic(){
   if(stream)stream.getTracks().forEach(t=>t.stop());
   stream=await navigator.mediaDevices.getUserMedia({audio:{deviceId:ui.mic.value?{exact:ui.mic.value}:undefined,echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1}});
   ac=new (window.AudioContext||window.webkitAudioContext)();await ac.resume();
-  const src=ac.createMediaStreamSource(stream);an=ac.createAnalyser();an.fftSize=16384;an.smoothingTimeConstant=.18;src.connect(an);
+  const src=ac.createMediaStreamSource(stream);an=ac.createAnalyser();an.fftSize=32768;an.smoothingTimeConstant=.14;an.minDecibels=-120;an.maxDecibels=-10;src.connect(an);
   freq=new Float32Array(an.frequencyBinCount);time=new Float32Array(an.fftSize);
   await listMics();ui.micStatus.textContent='MIC ON: '+(stream.getAudioTracks()[0].label||'mikrofoni')+' · '+ac.sampleRate+' Hz';
   loop();
@@ -245,6 +264,23 @@ function bandDb(f1,f2){
  for(let f=f1;f<=f2;f+=bh*3){const b=Math.round(f/bh);if(b<1||b>=freq.length)continue;sum+=Math.pow(10,freq[b]/10);n++}
  return n?10*Math.log10(sum/n):-120;
 }
+function initWideSpectrum(){
+ const bins=[];for(let f=WIDE_SPEC.minHz;f<=WIDE_SPEC.maxHz;f+=WIDE_SPEC.stepHz)bins.push(f);
+ wideSpec={min_hz:WIDE_SPEC.minHz,max_hz:WIDE_SPEC.maxHz,step_hz:WIDE_SPEC.stepHz,snapshot_interval_ms:WIDE_SPEC.intervalMs,bins_hz:bins,snapshots:[],_power:new Array(bins.length).fill(0),_peak:new Array(bins.length).fill(-120),_n:0};
+ lastWideCapture=0;
+}
+function captureWideSpectrum(now=performance.now()){
+ if(!measuring||!wideSpec||now-lastWideCapture<WIDE_SPEC.intervalMs)return;lastWideCapture=now;
+ const vals=wideSpec.bins_hz.map((f,i)=>{const d=+dbAt(f).toFixed(1);wideSpec._power[i]+=Math.pow(10,d/10);if(d>wideSpec._peak[i])wideSpec._peak[i]=d;return d});
+ wideSpec._n++;wideSpec.snapshots.push({t:Date.now(),db:vals});
+}
+function finishWideSpectrum(){
+ if(!wideSpec)return null;const n=Math.max(1,wideSpec._n);
+ const avg=wideSpec._power.map(v=>+(10*Math.log10(Math.max(1e-12,v/n))).toFixed(1));
+ const out={min_hz:wideSpec.min_hz,max_hz:wideSpec.max_hz,step_hz:wideSpec.step_hz,snapshot_interval_ms:wideSpec.snapshot_interval_ms,bins_hz:wideSpec.bins_hz,avg_db:avg,peak_db:wideSpec._peak.map(v=>+v.toFixed(1)),snapshots:wideSpec.snapshots};
+ wideSpec=null;return out;
+}
+
 function currentTargetRpm(){
  if(idx<0||!plan[idx])return +ui.idleRpm.value||1800;
  return plan[idx].rpm==='idle'?(+ui.idleRpm.value||1800):+plan[idx].rpm;
@@ -274,15 +310,16 @@ function estimateRPM(){
 function drawSpec(){
  const g=ui.spec.getContext('2d'),W=ui.spec.width,H=ui.spec.height,bh=ac.sampleRate/an.fftSize;
  g.fillStyle='#070a0e';g.fillRect(0,0,W,H);g.beginPath();let first=true;
- for(let f=20;f<=12000;f+=12){const b=Math.round(f/bh),db=freq[b]??-120,n=Math.max(0,Math.min(1,(db+105)/85)),x=(f-20)/11980*W,y=H-8-n*(H-16);if(first){g.moveTo(x,y);first=false}else g.lineTo(x,y)}
+ for(let f=WIDE_SPEC.minHz;f<=WIDE_SPEC.maxHz;f+=2){const b=Math.round(f/bh),db=freq[b]??-120,n=Math.max(0,Math.min(1,(db+105)/85)),x=(f-WIDE_SPEC.minHz)/(WIDE_SPEC.maxHz-WIDE_SPEC.minHz)*W,y=H-8-n*(H-16);if(first){g.moveTo(x,y);first=false}else g.lineTo(x,y)}
  g.strokeStyle='#ff4141';g.lineWidth=2;g.stroke();
+ g.fillStyle='#9aa6b5';g.font='10px system-ui';[20,100,200,300,400,500,600,700,800,900,1000].forEach(f=>{const x=(f-WIDE_SPEC.minHz)/(WIDE_SPEC.maxHz-WIDE_SPEC.minHz)*W;g.fillText(String(f),Math.min(W-28,Math.max(2,x-8)),H-3)});
 }
 function loop(){
  if(!an)return;
  const r=estimateRPM(),db=rmsDb(),hfdb=bandDb(2000,12000),hf=Math.round(Math.max(0,Math.min(100,(hfdb+95)/65*100)));
  live={rpm:r.rpm,conf:r.conf,db,hf,f0:r.f0,harm:r.harm};
  ui.rpm.textContent=live.rpm.toLocaleString('fi-FI');ui.conf.textContent=live.conf+'%';ui.level.textContent=(db<=-119?'-∞':db.toFixed(1));ui.hf.textContent=hf+'%';
- if(measuring)samples.push({t:Date.now(),...live,target:plan[idx]?.rpm,place:plan[idx]?.place});
+ if(measuring){samples.push({t:Date.now(),...live,target:plan[idx]?.rpm,place:plan[idx]?.place,step_id:plan[idx]?.step_id});captureWideSpectrum();}
  drawSpec();raf=requestAnimationFrame(loop);
 }
 
@@ -291,15 +328,29 @@ function buildPlan(){
  const ts=parseTargets(), enabled=places.filter(p=>p.enabled);
  const pp=[];
  for(const t of ts){
-   pp.push({type:'cal',rpm:t,place:ui.calPlace.value,instruction:'Kalibroi tämä RPM-alue pakoputken loppupäässä.'});
+   pp.push({type:'cal',rpm:t,place:ui.calPlace.value,kind:'rpm_reference',instruction:'Kalibroi tämä RPM-alue pakoputken loppupäässä.'});
    for(const p of enabled){
      if(p.name===ui.calPlace.value) continue;
      pp.push({type:'test',rpm:t,place:p.name,kind:p.kind,instruction:p.instruction});
    }
  }
+ pp.forEach((x,i)=>x.step_id=`${String(x.rpm)}__${i}__${x.place.replace(/[^a-zA-Z0-9åäöÅÄÖ]+/g,'_')}`);
  return pp;
 }
 function targetLabel(v){return v==='idle'?'TYHJÄKÄYNTI':`${v} RPM`}
+function sameTarget(a,b){return String(a)===String(b)}
+function isMeasured(step){return results.some(r=>r.status==='measured'&&sameTarget(r.rpm_target,step.rpm)&&r.place===step.place)}
+function isComplete(step){return results.some(r=>(r.status==='measured'||r.status==='skipped')&&sameTarget(r.rpm_target,step.rpm)&&r.place===step.place)}
+function selectStep(i){if(i<0||i>=plan.length||measuring)return;idx=i;showStep()}
+function renderSelectors(){
+ if(!plan.length){ui.rpmPicker.innerHTML='<span class="status">Aloita testisarja.</span>';ui.placePicker.innerHTML='';return}
+ const current=plan[idx]||plan[0],targets=[...new Set(plan.map(p=>String(p.rpm)))];
+ ui.rpmPicker.innerHTML=targets.map(t=>`<button class="${sameTarget(t,current.rpm)?'active':''}" data-rpm="${t}">${targetLabel(t)}</button>`).join('');
+ ui.rpmPicker.querySelectorAll('button').forEach(b=>b.onclick=()=>{const i=plan.findIndex(p=>sameTarget(p.rpm,b.dataset.rpm)&&!isComplete(p));selectStep(i>=0?i:plan.findIndex(p=>sameTarget(p.rpm,b.dataset.rpm)))});
+ const group=plan.map((p,i)=>({p,i})).filter(x=>sameTarget(x.p.rpm,current.rpm));
+ ui.placePicker.innerHTML=group.map(({p,i})=>`<button class="selBtn ${i===idx?'active':''} ${isMeasured(p)?'done':''}" data-i="${i}"><strong>${p.place}</strong><small>${p.type==='cal'?'REFERENSSI / KALIBROINTI':p.kind||'mittaus'}${isMeasured(p)?' · mitattu':''}</small></button>`).join('');
+ ui.placePicker.querySelectorAll('button').forEach(b=>b.onclick=()=>selectStep(+b.dataset.i));
+}
 function showStep(){
  if(idx<0||idx>=plan.length){finishSession();return}
  const s=plan[idx],total=plan.length;
@@ -310,6 +361,7 @@ function showStep(){
  ui.progressText.textContent=`${idx+1} / ${total}`;
  ui.overallFill.style.width=`${((idx)/total)*100}%`;
  ui.countdown.textContent='Valmis mittaamaan.';
+ renderSelectors();
  speak(`${targetLabel(s.rpm)}. ${s.type==='cal'?'Kalibrointi.':'Mittauspaikka.'} ${s.place}. ${s.instruction}`);
  saveState();
 }
@@ -328,7 +380,7 @@ function countdown(sec,cb){
 function doMeasure(){
  if(idx<0||!plan[idx]||measuring)return;
  countdown(+ui.moveDelay.value||0,()=>{
-  measuring=true;samples=[];const dur=+ui.duration.value||10;let n=dur;
+  measuring=true;samples=[];initWideSpectrum();const dur=+ui.duration.value||10;let n=dur;
   ui.measure.disabled=true;ui.skip.disabled=true;ui.countdown.textContent=`MITTAUS ${n} s`;speak('Mittaus alkaa');
   timer=setInterval(()=>{
     n--;ui.countdown.textContent=`MITTAUS ${Math.max(0,n)} s`;
@@ -339,33 +391,36 @@ function doMeasure(){
 function avg(k){return samples.length?samples.reduce((s,x)=>s+(+x[k]||0),0)/samples.length:0}
 function finishMeasure(){
  measuring=false;ui.measure.disabled=false;ui.skip.disabled=false;const s=plan[idx];
- const row={session:new Date().toISOString(),project:ui.project.value,type:s.type,rpm_target:s.rpm,rpm_reference:currentTargetRpm(),place:s.place,kind:s.kind||'calibration',
+ const spectrum=finishWideSpectrum();
+ const row={session:new Date().toISOString(),project:ui.project.value,type:s.type,step_id:s.step_id,rpm_target:s.rpm,rpm_reference:currentTargetRpm(),place:s.place,kind:s.kind||'calibration',
    avg_rpm:Math.round(avg('rpm')),avg_conf:+avg('conf').toFixed(1),avg_db:+avg('db').toFixed(1),avg_hf:+avg('hf').toFixed(1),
-   tube_len_mm:ui.tubeLen.value||'',distance_mm:ui.distance.value||'',stud:ui.stud.value||'',pipe_dia_mm:ui.pipeDia.value||'',note:ui.note.value||'',status:'measured',samples:[...samples]};
+   tube_len_mm:ui.tubeLen.value||'',distance_mm:ui.distance.value||'',stud:ui.stud.value||'',pipe_dia_mm:ui.pipeDia.value||'',note:ui.note.value||'',status:'measured',spectrum,samples:[...samples]};
  if(s.type==='cal'){
    const f0=avg('f0');calibrations[String(s.rpm)]={target:currentTargetRpm(),f0,avg_conf:row.avg_conf,avg_db:row.avg_db};
    row.calibration_f0=+f0.toFixed(3);
  }
- results.push(row);renderResults();buzz([100,80,100]);speak('Mittaus valmis');
+ results.push(row);renderResults();renderSelectors();buzz([100,80,100]);speak('Mittaus valmis');
  nextStep();
 }
 ui.measure.onclick=doMeasure;
 
 function skipStep(){
  if(idx<0||!plan[idx])return;const s=plan[idx];
- results.push({session:new Date().toISOString(),project:ui.project.value,type:s.type,rpm_target:s.rpm,rpm_reference:currentTargetRpm(),place:s.place,kind:s.kind||'calibration',status:'skipped',note:ui.note.value||''});
+ results.push({session:new Date().toISOString(),project:ui.project.value,type:s.type,step_id:s.step_id,rpm_target:s.rpm,rpm_reference:currentTargetRpm(),place:s.place,kind:s.kind||'calibration',status:'skipped',note:ui.note.value||''});
  renderResults();speak('Ohitettu');nextStep();
 }
 ui.skip.onclick=skipStep;
 ui.back.onclick=()=>{if(idx>0){idx--;showStep()}};
 
 function nextStep(){
- idx++;
- if(idx>=plan.length){finishSession();return}
- if(ui.autoAdvance.checked) showStep(); else showStep();
+ const cur=plan[idx];let next=-1;
+ if(cur){for(let i=idx+1;i<plan.length;i++){if(sameTarget(plan[i].rpm,cur.rpm)&&!isComplete(plan[i])){next=i;break}}}
+ if(next<0){for(let i=0;i<plan.length;i++){if(!isComplete(plan[i])&&(!cur||!sameTarget(plan[i].rpm,cur.rpm))){next=i;break}}}
+ if(next<0){finishSession();return}
+ idx=next;showStep();
 }
 function finishSession(){
- ui.stepText.textContent='TESTISARJA VALMIS';ui.targetText.textContent='✓';ui.placeText.textContent='Data tallennettu';ui.instruction.textContent='Lataa JSON ja lähetä se ChatGPT:lle analysoitavaksi. CSV sopii nopeaan taulukkovertailuun.';
+ ui.stepText.textContent='TESTISARJA VALMIS';ui.targetText.textContent='✓';ui.placeText.textContent='Laaja spektridata tallennettu';ui.instruction.textContent='JSON sisältää 20–1000 Hz spektrin, keskiarvon, huippuarvot ja 200 ms spektrikuvat jokaisesta mittauspaikasta.';
  ui.overallFill.style.width='100%';ui.progressText.textContent=`${plan.length} / ${plan.length}`;ui.countdown.textContent='Valmis.';speak('Testisarja valmis');saveState();
 }
 
@@ -378,7 +433,7 @@ function renderResults(){
 }
 function dl(name,type,text){const b=new Blob([text],{type}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 ui.exportJson.onclick=()=>{
- const payload={app:'VÄNÄ MotoLab Solo RPM & Knock Tester v1',project:ui.project.value,created:new Date().toISOString(),targets:parseTargets(),places,calibrations,results};
+ const payload={app:'VÄNÄ MotoLab Wide Spectrum RPM & Knock Tester v2',project:ui.project.value,created:new Date().toISOString(),spectrum_config:WIDE_SPEC,targets:parseTargets(),places,calibrations,results};
  dl(`VANA_MotoLab_test_${Date.now()}.json`,'application/json',JSON.stringify(payload,null,2));
 };
 ui.exportCsv.onclick=()=>{
@@ -399,7 +454,7 @@ function loadState(){
   renderPlaces();renderResults();
  }catch(e){}
 }
-loadState();renderResults();
+loadState();renderResults();renderSelectors();
 window.addEventListener('beforeunload',saveState);
 </script>
 </body></html>

@@ -1,65 +1,23 @@
-VÄNÄ MotoLab – Solo RPM & Knock Tester v1
+VÄNÄ MotoLab – Wide Spectrum RPM & Knock Tester v2
 
-Tarkoitus
----------
-Yksin käytettävä ohjattu testiohjelma AirPod/BT-mikrofonin RPM- ja
-korkeataajuisen värähtelysignaalin vertailuun.
+MUUTOKSET v2
+- Ohjattu RPM- ja mittauspaikan valinta isoilla painikkeilla.
+- Mittauspaikan voi valita vapaasti; valmis paikka merkitään ✓.
+- Jokainen mittaus tallentaa step_id:n, tavoite-RPM:n ja mittauspaikan.
+- Laaja spektri 20–1000 Hz, 5 Hz välein.
+- Spektrin aikakuva tallennetaan noin 200 ms välein mittauksen ajan.
+- JSON sisältää jokaisesta mittauksesta bins_hz, avg_db, peak_db ja snapshots.
+- Live-spektrinäyttö zoomattu 20–1000 Hz alueelle.
+- FFT size 32768 paremman taajuuserottelun vuoksi.
+- Oletus-RPM pisteet: idle, 2000, 3000, 4000, 5000.
 
-Testin logiikka
----------------
-Jokainen kierrosalue tehdään näin:
-
-1. Kalibrointi pakoputken loppupäässä / stingerin alussa.
-2. Samalla RPM-alueella käydään kaikki muut mittauspaikat läpi.
-3. Seuraava RPM-alue alkaa uudella kalibroinnilla pakoputkessa.
-4. Paikkoja voi ohittaa.
-5. Jokainen mittaus tallentuu erikseen.
-6. Tuloksia voidaan tarkastella myöhemmin sekä RPM-alueittain että paikoittain.
-
-Oletuspisteet:
-- tyhjäkäynti
-- 3000 rpm
-- 5000 rpm
-- 7000 rpm
-- 9000 rpm
-
-Oletuspaikat:
-- vapaa mikrofoni 0,5 m pakoputkesta
-- vapaa mikrofoni 0,5 m moottorista
-- mikrofoni suoraan pinnapulttiin
-- pinnapultti + lyhyt jäykkä letku
-- tulpan metalliosa
-- oma paikka
-
-Solo-käyttö
------------
-- isot painikkeet
-- siirtymäajan laskuri
-- ääniohjaus selaimen speech synthesis -toiminnolla
-- värinäpalautetta tuetuilla puhelimilla
-- automaattinen eteneminen
-- testin voi keskeyttää ja jatkaa selaimen localStoragesta
-- puuttuvan adapterin testi voidaan ohittaa
-
-Data
-----
-JSON sisältää myös mittausten yksittäiset näytteet:
-- aikaleima
-- arvioitu RPM
-- RPM confidence
-- mic dB
-- HF / knock score
-- havaittu fundamental
-- H1–H6 spektritieto
-
-CSV sisältää testien yhteenvetorivit.
-
-HUOM
-----
-HF / Knock -arvo on tässä kokeellinen korkeataajuisen värähtelyn mittari.
-Sitä ei pidä käyttää yksin moottorin suojaukseen tai varmana nakutustunnistuksena.
-
-iPhone/Safari
--------------
-Avaa sivu HTTPS-osoitteesta, jos mikrofonilupa ei toimi paikallisesta tiedostosta.
-Safari/BT voi myös päättää itse käytettävän Bluetooth-mikrofonin reitityksestä.
+KÄYTTÖ
+1. Avaa index.html selaimessa.
+2. Käynnistä BT/AirPod-mikrofoni.
+3. Paina ALOITA TESTISARJA.
+4. Valitse RPM.
+5. Paina mittauspaikkaa, esim. Paisari / Pinnapultti / Tulppa / 50 cm.
+6. Tarkista että ruudulla lukee oikea paikka ja RPM.
+7. Paina MITTAA.
+8. Tee kaikki paikat samalla RPM:llä ja siirry seuraavaan RPM-pisteeseen.
+9. Lataa JSON analyysiä varten.
