@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090b">
+<title>MotorLab Recovery</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:#050507;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;padding:20px}.card{width:min(100%,480px);border:1px solid #ff263f;border-radius:22px;background:#0a0c10;padding:20px;box-shadow:0 18px 60px #000a}h1{margin:0 0 8px;font-size:28px}.sub{color:#aeb5bf;font-size:13px;line-height:1.5}.status{margin:18px 0;padding:14px;border:1px solid #30343b;border-radius:12px;background:#111318;white-space:pre-line;font-size:12px;line-height:1.5;min-height:70px}button{width:100%;min-height:54px;border-radius:12px;border:1px solid #ff263f;background:#a80d20;color:#fff;font-weight:1000;font-size:15px}button:disabled{opacity:.55}.ok{color:#62ef8b}.err{color:#ff6a79}.tiny{margin-top:12px;color:#777;font-size:10px;line-height:1.45}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>MotorLab Recovery</h1>
+<div class="sub">Korjaa vanhaan 25.8. versioon jumittunut MotorLab. Tämä ei poista RAW-dataa, IndexedDB:tä, käyttäjää eikä asetuksia.</div>
+<div id="status" class="status">Valmis. Paina korjausta kerran.</div>
+<button id="go" type="button">KORJAA JA AVAA MOTOLAB</button>
+<div class="tiny">Toiminto poistaa vain /v-n-_autodyno/ service-worker-rekisteröinnin ja asentaa nykyisen sw-live.js-version uudelleen samalle scopelle.</div>
+</div>
+<script>
+(()=>{
+'use strict';
+const APP_SCOPE=new URL('/v-n-_autodyno/',location.origin).href;
+const APP_URL='/v-n-_autodyno/index.html?recovered='+Date.now();
+const SW_URL='/v-n-_autodyno/sw-live.js?recovery='+Date.now();
+const status=document.getElementById('status'),go=document.getElementById('go');
+const say=(s,cls='')=>{status.className='status '+cls;status.textContent=s};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function waitActive(reg){
+ for(let i=0;i<80;i++){
+  if(reg.waiting){try{reg.waiting.postMessage({type:'SKIP_WAITING'})}catch{}}
+  if(reg.active&&reg.active.state==='activated')return true;
+  await sleep(125);
+ }
+ return !!(reg.active&&reg.active.state==='activated');
+}
+async function recover(){
+ go.disabled=true;
+ try{
+  if(!('serviceWorker' in navigator))throw Error('Service Worker ei ole käytettävissä tässä selaimessa.');
+  say('1/4 Tarkistetaan verkosta nykyinen MotorLab-versio…');
+  const vr=await fetch('/v-n-_autodyno/version.js?recovery='+Date.now(),{cache:'no-store'});
+  if(!vr.ok)throw Error('version.js HTTP '+vr.status);
+  const vt=await vr.text();
+  const m=vt.match(/build:\s*["']([^"']+)/);
+  const build=m?.[1]||'tuntematon';
+  say('2/4 Verkossa: '+build+'\nPoistetaan vain vanha MotorLab service worker…');
+  const regs=await navigator.serviceWorker.getRegistrations();
+  let removed=0;
+  for(const reg of regs){
+   if(reg.scope===APP_SCOPE||reg.scope.startsWith(APP_SCOPE)){
+    if(await reg.unregister())removed++;
+   }
+  }
+  await sleep(250);
+  say('3/4 Vanhoja MotorLab-worker-rekisteröintejä poistettu: '+removed+'\nAsennetaan uusi worker…');
+  const reg=await navigator.serviceWorker.register(SW_URL,{scope:'/v-n-_autodyno/',updateViaCache:'none'});
+  await reg.update().catch(()=>{});
+  const active=await waitActive(reg);
+  if(!active)throw Error('Uusi worker ei ehtinyt aktivoitua. Yritä nappia uudelleen.');
+  say('4/4 VALMIS • '+build+'\nRAW-dataa ei poistettu. Avataan MotorLab…','ok');
+  await sleep(700);
+  location.replace(APP_URL);
+ }catch(e){
+  say('VIRHE: '+(e?.message||e)+'\n\nRAW-dataa ei poistettu.','err');
+  go.disabled=false;
+ }
+}
+go.addEventListener('click',recover);
+})();
+</script>
+</body>
+</html>
